@@ -10,4 +10,4 @@ cabal.project.local
 .DS_Store
 
 # unrelated
-.pdf
+*.pdf
