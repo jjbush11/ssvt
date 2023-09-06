@@ -47,3 +47,20 @@ euler10 = undefined
 
 euler49 :: Integer
 euler49 = undefined
+
+-- Quick check test for sum of squares 1ˆ2 + 2^2 + 3^2 + ... + n^2 = (n(n+1)(2n+1))/6
+squareSum :: Integer -> Integer
+squareSum n = sum [x^2 | x <- [1..n]]
+
+prop_squareSum :: Integer -> Bool
+prop_squareSum n  | n <= 0 = discard
+                  | otherwise =  squareSum n == (n* (n+1) * (2 * n+1)) `div` 6
+
+-- Quick check test for sum of squares 1ˆ3 + 2^3 + 3^3 + ... + n^3 = ((n(n+1))/2)ˆ2
+powerOfThreeSum :: Integer -> Integer
+powerOfThreeSum n = sum [x^3 | x <- [1..n]]
+
+prop_powerOfThreeSum :: Integer -> Bool
+prop_powerOfThreeSum n  
+  | n <= 0 = discard
+  | otherwise =  powerOfThreeSum n == ((n* (n+1)) `div` 2) ^ 2
