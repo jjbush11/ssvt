@@ -1,7 +1,19 @@
 module Exercise4 where
 
+import Data.Foldable
+import Data.Maybe
+import GHC.Unicode (wgencat)
 import System.Random
 import Test.QuickCheck
+
+-- From Exercise 1
+-- A generator which only allows for natural numbers to be generates
+genPositiveNumbers :: Gen Integer
+genPositiveNumbers = abs <$> (arbitrary :: Gen Integer) `suchThat` (> 0)
+
+-- A generator which generates numbers smaller or equal to zero
+genNegativeNumbers :: Gen Integer
+genNegativeNumbers = arbitrary `suchThat` (<= 0)
 
 -- Props to https://prime-numbers.info/list/emirps-up-to-10000
 -- Count is 240
@@ -20,48 +32,88 @@ reversal :: Integer -> Integer
 reversal = read . reverse . show
 
 isReversablePrime :: Integer -> Bool
-isReversablePrime n = n >= 10 && prime (reversal n)
+isReversablePrime n = prime (reversal n)
 
 reversibleStream :: [Integer]
 reversibleStream = filter isReversablePrime $ takeWhile (< 10000) primes
 
 -- 1. Reversal correctness checks if the reversal of the reversal produces the original number
+-- This property should fail for values below 0, e.g. -1 => 1-. This is because read can't parse 1- to an integer.
+-- Furthermore, every number that ends with a 0 will be reversed wrongly. E.g. 10 => 01, which read parses to 1.
+-- Thus this property will also fail for 10, 20, etc.
+-- To fix this, the reversal function could contain a guard which checks if the amount of digits are the same at the end.
 prop_reversalCorrectness :: Integer -> Bool
 prop_reversalCorrectness n = reversal (reversal n) == n
 
 -- 2. Prime reversibility
+-- Tests the reversiblePrime function on a list found on prime-numbers.info
+-- This ensures that the function actually works, because this list was predefined
 prop_primesAreReversable :: Bool
 prop_primesAreReversable = all isReversablePrime emirpsUpto10000
 
 -- 3. Prime Membership
-prop_primeMembership :: Bool 
+-- This checks if all values in reversibleStream are prime.
+-- The prime function was supplied in the Lab0.hs file
+-- We expect that all primes
+prop_primeMembership :: Bool
 prop_primeMembership = all prime reversibleStream
 
 -- 4. Reversible Prime Count
+-- We expect the list to be a count of 260, because it contains both emirps (e.g. 13 <--> 31)
+-- and palindromes (e.g. 11 <--> 11).
 prop_reversiblePrimeCount :: Bool
-prop_reversiblePrimeCount = length emirpsUpto10000 == length reversibleStream
+prop_reversiblePrimeCount = 260 == length reversibleStream
 
 -- 5. Reversal Symmetry
-prop_reversalSymmetry :: Bool 
-prop_reversalSymmetry = length reversibleStream == length (map reversal reversibleStream)
+-- We want to verify for every element in the list also has an element in the list that is in reverse way.
+-- First we make a function to find an element in the list that is equal to the reversal prime
+findReversible :: Integer -> Maybe Integer
+findReversible n = find precondition reversibleStream
+  where
+    precondition x = x == reversal n
+
+-- We map above mentioned function, findReversible, which returns a list of [Maybe Integer]
+-- We check if list doesn't contain Nothing. If so the test succeeds.
+prop_reversalSymmetry :: Bool
+prop_reversalSymmetry = Nothing `notElem` map findReversible reversibleStream
 
 -- 6. Unique Values
-prop_uniqueValues :: Bool
-prop_uniqueValues = length reversibleStream == length (filter isReversablePrime reversibleStream)
+-- First create a function to check if a list only contains unique values
+uniqueValues :: Eq a => [a] -> Bool
+uniqueValues [] = True
+uniqueValues (x : xs) = x `notElem` xs && uniqueValues xs
+
+-- Testing if above function returns true when unique list of Integers is provided
+prop_uniqueValuesTrue :: Bool
+prop_uniqueValuesTrue = uniqueValues [1, 2, 3]
+
+-- Testing if above function returns fails when a non unique list of Integers is provided
+prop_uniqueValuesFalse :: Bool
+prop_uniqueValuesFalse = not $ uniqueValues [2, 3, 3]
+
+-- Now check if reversibleStream only contains unique values
+prop_uniqueValue :: Bool
+prop_uniqueValue = uniqueValues reversibleStream
 
 -- 7. Check Maximum Value
-prop_maxValue :: Bool 
+-- Looks up the maximum value in the list and checns if it is below or equal to 10000
+prop_maxValue :: Bool
 prop_maxValue = maximum reversibleStream <= 10000
 
 main :: IO ()
 main = do
-  print $ "There are " ++ show (length reversibleStream) ++ " in reversibleStream"
-  quickCheck prop_reversalCorrectness
+  -- Test the properties
+  -- Test both properties with the genPositiveNumbers generator and the genNegativeNumbers generator
+  -- Expect failure on negative numbers
+  quickCheck $ forAll genPositiveNumbers prop_reversalCorrectness
+  quickCheck $ expectFailure $ forAll genNegativeNumbers prop_reversalCorrectness
   quickCheck prop_primesAreReversable
   quickCheck prop_primeMembership
   quickCheck prop_reversiblePrimeCount
   quickCheck prop_reversalSymmetry
-  quickCheck prop_uniqueValues
+  quickCheck prop_uniqueValuesTrue
+  quickCheck prop_uniqueValuesFalse
+  quickCheck prop_uniqueValue
   quickCheck prop_maxValue
 
--- 40 minutes
+-- Time spent: 1.5 hours

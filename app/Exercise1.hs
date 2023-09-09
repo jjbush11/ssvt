@@ -44,5 +44,4 @@ main = do
   quickCheck (forAll genPositiveNumbers prop_powerOfThreeSum)
   quickCheck $ expectFailure $ forAll genNegativeNumbers prop_powerOfThreeSum
 
-
--- Time spent: 15 minutes, but more on setting up dependencies
+-- Time spent: 1 hour, of which a lot with making the dependencies work

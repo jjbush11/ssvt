@@ -1,13 +1,10 @@
 module Exercise2 where
 
-import Control.Monad
 import Data.Char
 import Data.List
-import GHC.Float
 import System.Random
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
-import Test.QuickCheck.State (State (expected))
 
 probs :: Int -> IO [Float]
 probs 0 = return []
@@ -17,54 +14,47 @@ probs n = do
   return (p : ps)
 
 -- Exercise 2
--- Quartile boundaries
-quartileBoundaries :: [Float]
-quartileBoundaries = [0, 0.25, 0.5, 0.75, 1]
-
--- Expected proportions for a fair die
-expectedProportions :: Int -> [Float]
-expectedProportions n = replicate 4 (fromIntegral (n `div` 4))
-
--- Allowed tolerance for each proportion
-tolerance :: Double
-tolerance = 0.05
-
--- Helper function to count the number of values within a quartile boundary
-countValuesInQuartile :: [Float] -> Float -> Float -> Int
-countValuesInQuartile values lowerBound upperBound =
-  length $ filter (\v -> v >= lowerBound && v < upperBound) values
-
--- Helper function to calculate the expected counts for each quartile
-calculateExpectedCounts :: Int -> [Float]
-calculateExpectedCounts n =
-  replicate 4 (fromIntegral (n `div` 4))
-
--- Helper function to check if observed counts are within tolerance of expected counts
-withinTolerance :: [(Int, Float)] -> Float -> Bool
-withinTolerance counts tolerance =
-  all (\(observed, expected) -> abs (fromIntegral observed - expected) <= tolerance) counts
-
-prop_QuartileDistribution :: Int -> Property
-prop_QuartileDistribution n = monadicIO $ do
+-- We have to use monadicIO, because probs has side effects as it uses getStdRandom.
+-- The property will then pass the generated probabilities to checkIfDistributionIsEqual
+prop_quartileDistrubution :: Int -> Property
+prop_quartileDistrubution n = monadicIO $ do
   values <- run (probs n)
+  return $ checkIfDistributionIsEqual values
 
-  -- Define quartile boundaries
-  let quartileBoundaries = [0.0, 0.25, 0.5, 0.75, 1.0]
+checkIfDistributionIsEqual :: [Float] -> Bool
+checkIfDistributionIsEqual floatList
+  | all (checkIfNumberWithInMargin quartile errorMargin) [firstRangeCount, secondRangeCount, thirdRangeCount, fourthRangeCount] = True
+  | otherwise = False
+  where
+    quartile = length floatList `div` 4
+    -- The error margin is 0.05
+    errorMargin = length floatList `div` 20
+    firstRangeCount = getNumberOfItemsInRange floatList 0 0.25
+    secondRangeCount = getNumberOfItemsInRange floatList 0.25 0.5
+    thirdRangeCount = getNumberOfItemsInRange floatList 0.5 0.75
+    fourthRangeCount = getNumberOfItemsInRange floatList 0.75 1
 
-  -- Calculate observed counts for each quartile
-  let quartileCounts =
-        [ (countValuesInQuartile values q (q + 0.25), expected)
-          | (q, expected) <- zip quartileBoundaries (calculateExpectedCounts n)
-        ]
+-- This function is to count all numbers that are in a specific range
+getNumberOfItemsInRange :: [Float] -> Float -> Float -> Int
+getNumberOfItemsInRange floatList lowerBound upperBound = length (filter (\x -> (x > lowerBound) && (x <= upperBound)) floatList)
 
-  -- Define tolerance
-  let tolerance = 0.05 * fromIntegral n :: Float
+-- This function check if actuel quartile size is within expected size and margin error.
+checkIfNumberWithInMargin :: Int -> Int -> Int -> Bool
+checkIfNumberWithInMargin expectedQuartileSize errorMargin actualQuartileSize = actualQuartileSize >= expectedQuartileSize - errorMargin && actualQuartileSize <= expectedQuartileSize + errorMargin
 
-  -- Assert that observed counts are within tolerance of expected counts
-  assert (withinTolerance quartileCounts tolerance)
+-- A list of numbers with an unequal distribution
+unequalDistribution :: [Float]
+unequalDistribution = [0.2, 0.2, 0.2, 0.75]
 
 main :: IO ()
 main = do
-  quickCheckWith stdArgs {maxSuccess = 1000} (prop_QuartileDistribution 10000)
+  -- Test for multiple float list sizes. small size lists tends to have a non equal distrubution.
+  -- Thus the lists of counts 100 and 1000 fail
+  quickCheckWith stdArgs {maxSuccess = 1000} (prop_quartileDistrubution 100)
+  quickCheckWith stdArgs {maxSuccess = 1000} (prop_quartileDistrubution 1000)
+  quickCheckWith stdArgs {maxSuccess = 1000} (prop_quartileDistrubution 10000)
 
--- Time spent: 2 hour
+  -- Expect a failure due to an unequal distribution
+  quickCheck $ expectFailure $ checkIfDistributionIsEqual unequalDistribution
+
+-- Time spend: 1.5 hour
