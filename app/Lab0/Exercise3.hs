@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Exercise3 where
+module Lab0.Exercise3 where
 
 import GHC.Read (list)
 import qualified GHC.TypeLits as RandomGen
