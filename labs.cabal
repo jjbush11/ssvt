@@ -25,7 +25,12 @@ executable labs
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:    Lab0
+    other-modules:  Exercise1,
+                    Exercise2,
+                    Exercise3,
+                    Exercise4,
+                    Exercise5,
+                    Exercise6
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
