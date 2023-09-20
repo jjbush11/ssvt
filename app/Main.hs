@@ -7,6 +7,6 @@ import Lab1.TestSuite
 main :: IO ()
 main = do 
     -- Lab 0 Exercises
-    Lab0.TestSuite.main
+    -- Lab0.TestSuite.main
     -- Lab 1 Exercises
     Lab1.TestSuite.main
