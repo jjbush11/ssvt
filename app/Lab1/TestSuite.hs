@@ -8,6 +8,7 @@ import Lab1.Exercise5
 import Lab1.Exercise6
 import Lab1.Exercise7
 import Lab1.Exercise8
+import Lab1.Exercise9
 
 main :: IO ()
 main = do 
@@ -34,4 +35,7 @@ main = do
     Lab1.Exercise7.main    
     -- Lab 1 Exercise 8
     putStrLn "\n** Performing tests for lab 1 exercise 8"
-    Lab1.Exercise8.main    
+    Lab1.Exercise8.main
+    -- Lab 1 Exercise 9
+    putStrLn "\n** Performing tests for lab 1 exercise 9"
+    Lab1.Exercise9.main    

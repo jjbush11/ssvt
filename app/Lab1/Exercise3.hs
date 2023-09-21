@@ -1,15 +1,9 @@
 {-# LANGUAGE InstanceSigs #-}
 module Lab1.Exercise3 where
 
-import Control.Monad
-import Data.Char
 import Data.List
-import Data.Maybe
-import GHC.Float
 import Lecture2
 import Test.QuickCheck
-import Test.QuickCheck.Monadic
-import Test.QuickCheck.State
 
 data Prop = Prop
   { name :: String,

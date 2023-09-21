@@ -2,12 +2,10 @@
 
 module Lab1.Exercise7 where
 
-import Data.Char
 import Data.List
 import Lecture3
 import SetOrd
 import Test.QuickCheck
-import Test.QuickCheck.State
 
 -- Exercise 7
 

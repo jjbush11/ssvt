@@ -1,8 +1,6 @@
 module Lab1.Exercise5 where
 
-import Data.Map (Map)
 import Test.QuickCheck
-import Test.QuickCheck.State
 import Data.List
 
 data Boy = Matthew | Peter | Jack | Arnold | Carl

@@ -41,6 +41,7 @@ executable labs
                     Lab1.Exercise6,
                     Lab1.Exercise7,
                     Lab1.Exercise8,
+                    Lab1.Exercise9,
                     Lecture2,
                     Lecture3,
                     SetOrd

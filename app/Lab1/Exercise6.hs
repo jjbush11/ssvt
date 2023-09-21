@@ -1,13 +1,6 @@
 module Lab1.Exercise6 where
 
-import Control.Monad
-import Data.Char
-import Data.List
-import GHC.Float
-import System.Random
 import Test.QuickCheck
-import Test.QuickCheck.Monadic
-import Test.QuickCheck.State
 import Lecture3
 
 -- Exercise 6
