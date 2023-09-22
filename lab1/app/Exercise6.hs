@@ -4,8 +4,7 @@ import Lecture3
 import Test.QuickCheck
 
 -- Exercise 6
--- Converting from first-order logic
-
+-- Too showcase that our cnf converter works we created 5 examples.
 -- Example 1: Negation of Disjunction
 example1 :: Form
 example1 = Neg (Dsj [Prop 1, Prop 2])
@@ -26,17 +25,26 @@ example4 = Neg (Impl (Prop 1) (Cnj [Prop 2, Prop 3]))
 example5 :: Form
 example5 = Impl (Cnj [Prop 1, Dsj [Prop 2, Prop 3]]) (Prop 4)
 
--- Convert to negation normal form
+-- Convert to Conjunctive normal form
+-- The first step to convert a formula to Conjunctive normal form is removing it's arrows.
+-- The following equivalences are used:
+-- p→q becomes ¬p∨q
+-- p↔q becomes (¬p∨q)∧(p∨¬q).
+-- The arrowfree function from Lecture 3 provides this functionality.
+-- When all the arrows are removed you need to make sure that only atoms can have negations.
+-- To remove negations from non atoms the nnf function uses the following equivalences:
+-- ¬¬p becomes p
+-- ¬(p∧q) becomes ¬p∨¬q
+-- ¬(p∨q) becomes ¬p∧¬q
+-- Once again the functionality is provided by the nnf function from lecture 3.
 cnf :: Form -> Form
 cnf = nnf . arrowfree
 
--- Eliminate implications
--- Repeatedly replace P -> Q with ~P v Q
-
--- Replace P <-> Q with (P v ~Q) ^ (~P v Q)
-
 main :: IO ()
 main = do
+  print "Examples:"
   putStrLn $ concatMap (\e -> show e ++ " \n") [example1, example2, example3, example4, example5]
   putStrLn $ concatMap (\e -> show (cnf e) ++ " \n") [example1, example2, example3, example4, example5]
-  print $ cnf form2
+  print "Examples from Lecture 3:"
+  putStrLn $ concatMap (\e -> show e ++ " \n") [form1, form2, form3]
+  putStrLn $ concatMap (\e -> show (cnf e) ++ " \n") [form1, form2, form3]

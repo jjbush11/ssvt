@@ -8,7 +8,8 @@ import Test.QuickCheck
 genNaturalNumbers :: Gen Integer
 genNaturalNumbers = (arbitrary :: Gen Integer) `suchThat` (>= 0)
 
--- https://www.wikiwand.com/en/Factorial
+-- https://www.theochem.ru.nl/~pwormer/Knowino/knowino.org/wiki/Factorial.html
+-- From the Radbout University Nijmegen
 factorial :: Integer -> Integer
 factorial n
   | n == 0 = 1
@@ -36,27 +37,27 @@ prop_divisableBySmallerThanN n = all (isDivisableByX (factorial n)) [1 .. n]
 
 main :: IO ()
 main = do
--- Test: prop_factorialBase
--- Test: prop_factorialIncrement
--- output: +++ OK, passed 1 test.
--- output: +++ OK, passed 100 tests.
+  -- Test: prop_factorialBase
+  -- Test: prop_factorialIncrement
+  -- output: +++ OK, passed 1 test.
+  -- output: +++ OK, passed 100 tests.
 
--- So we would like to prove the following:
--- 1 * ... * n = factorial (n)
--- We test the base case, which returns 1
--- Then we test the induction step factorial n * (n + 1) = factorial (n + 1)
--- This also passed for 100 tests.
--- Thus all the cases of the factorial function are covered and work correctly.
--- Unfortunately, these 100 tests don't cover the whole domain (all natural numbers).
--- To do that, we would instead have to do a mathematical proof by induction.
+  -- So we would like to prove the following:
+  -- 1 * ... * n = factorial (n)
+  -- We test the base case, which returns 1
+  -- Then we test the induction step factorial n * (n + 1) = factorial (n + 1)
+  -- This also passed for 100 tests.
+  -- Thus all the cases of the factorial function are covered and work correctly.
+  -- Unfortunately, these 100 tests don't cover the whole domain (all natural numbers).
+  -- To do that, we would instead have to do a mathematical proof by induction.
   quickCheck prop_factorialBase
   quickCheck (forAll genNaturalNumbers prop_factorialIncrement)
 
--- Test: prop_divisableBySmallerThanN
--- output: +++ OK, passed 100 tests.
--- We already tested if our function is working for a large set of natural numbers.(*)
--- In this Test we want to proof the output of the function by checking if it is divisable by numbers lower then n
--- This also passed 100 test.
--- This property suggest that the facorial function correctly computes the factorial of n.
--- Just like previous test it doesn't dover the whole domain of all natural numbers.
+  -- Test: prop_divisableBySmallerThanN
+  -- output: +++ OK, passed 100 tests.
+  -- We already tested if our function is working for a large set of natural numbers.(*)
+  -- In this Test we want to proof the output of the function by checking if it is divisable by numbers lower then n
+  -- This also passed 100 test.
+  -- This property suggest that the facorial function correctly computes the factorial of n.
+  -- Just like previous test it doesn't dover the whole domain of all natural numbers.
   quickCheck prop_divisableBySmallerThanN

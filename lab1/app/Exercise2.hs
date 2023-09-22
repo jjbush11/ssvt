@@ -43,7 +43,8 @@ prop_lengthOfPowerSetInduction xs ys = length (subsequences (xs ++ ys)) == 2 ^ (
 -- A QuickCheck generator which generates lists of a maximum length of 100
 -- A maximum length was chosen, because otherwise the testing of the properties
 -- would take a big amount of resources and wouldn't finish timely.
--- We started out at 100, but this took to long and we scaled down to 10, to allow for the induction test to finish in a reasonable amount of time.
+-- We started out at 100, but this took to long and we scaled down to 20.
+-- This had to be further scaled down to allow for the induction test to finish in a reasonable amount of time.
 listGeneratorWithMaxLength :: Gen [Int]
 listGeneratorWithMaxLength = sized $ \n -> do
   k <- choose (0, 10)
