@@ -34,6 +34,7 @@ executable labs
                     Exercise7,
                     Exercise8,
                     Exercise9,
+                    Lecture1,
                     Lecture2,
                     Lecture3,
                     SetOrd
