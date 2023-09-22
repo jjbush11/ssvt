@@ -1,5 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
-module Lab1.Exercise3 where
+module Exercise3 where
 
 import Data.List
 import Lecture2

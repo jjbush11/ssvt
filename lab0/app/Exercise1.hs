@@ -1,4 +1,4 @@
-module Lab0.Exercise1 where
+module Exercise1 where
 
 import Control.Monad
 import Data.Char

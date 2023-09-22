@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               labs
+name:               lab0
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -25,26 +25,12 @@ executable labs
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:  Lab0.TestSuite,
-                    Lab0.Exercise1,
-                    Lab0.Exercise2,
-                    Lab0.Exercise3,
-                    Lab0.Exercise4,
-                    Lab0.Exercise5,
-                    Lab0.Exercise6,
-                    Lab1.TestSuite,
-                    Lab1.Exercise1,
-                    Lab1.Exercise2,
-                    Lab1.Exercise3,
-                    Lab1.Exercise4,
-                    Lab1.Exercise5,
-                    Lab1.Exercise6,
-                    Lab1.Exercise7,
-                    Lab1.Exercise8,
-                    Lab1.Exercise9,
-                    Lecture2,
-                    Lecture3,
-                    SetOrd
+    other-modules:  Exercise1,
+                    Exercise2,
+                    Exercise3,
+                    Exercise4,
+                    Exercise5,
+                    Exercise6
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

@@ -1,4 +1,4 @@
-# Revision history for labs
+# Revision history for lab1
 
 ## 0.1.0.0 -- YYYY-mm-dd
 
