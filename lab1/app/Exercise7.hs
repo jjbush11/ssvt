@@ -19,19 +19,22 @@ unionSets = foldr unionSet emptySet
 
 -- Counts all the subformulas of a formula
 nsub :: Form -> Int
-nsub form = sizeSet $ nsub' emptySet form
+nsub form = sizeSet $ nsub' form
   where
-    nsub' :: Set Form -> Form -> Set Form
-    nsub' subforms formula = insertSet formula $
+    nsub' :: Form -> Set Form
+    nsub' formula =
       case formula of
-        Prop _ -> subforms
-        Neg f -> nsub' subforms f
-        Cnj fs -> recurse fs
-        Dsj fs -> recurse fs
-        Impl f1 f2 -> recurse [f1, f2]
-        Equiv f1 f2 -> recurse [f1, f2]
-      where
-        recurse = unionSets . map (nsub' subforms)
+        Prop _ -> Set [formula]
+        Neg f -> nsub'' [f]
+        Cnj fs ->  nsub'' fs
+        Dsj fs -> nsub'' fs
+        Impl f1 f2 -> nsub'' [f1, f2]
+        Equiv f1 f2 -> nsub'' [f1, f2]
+        where 
+          -- This function takes a list of formulas and returns a set of all subformulas
+          -- It will recursively call itself on the subformulas of the formulas in the list
+          nsub'' :: [Form] -> Set Form
+          nsub'' = unionSets . (Set [formula] :) . map nsub'
 
 arbitraryPositiveInt :: Int -> Gen Int
 arbitraryPositiveInt n = choose (1, n :: Int)
