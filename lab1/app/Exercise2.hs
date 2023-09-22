@@ -37,16 +37,16 @@ prop_baseCase = 1 == length (subsequences [])
 prop_lengthOfPowerSet :: [a] -> Bool
 prop_lengthOfPowerSet xs = 2 ^ length xs == length (subsequences xs)
 
-prop_test :: [a] -> [a] -> Bool
-prop_test xs ys = length (subsequences (xs ++ ys)) == 2 ^ (length xs + length ys)
+prop_lengthOfPowerSetInduction :: [a] -> [a] -> Bool
+prop_lengthOfPowerSetInduction xs ys = length (subsequences (xs ++ ys)) == 2 ^ (length xs + length ys)
 
 -- A QuickCheck generator which generates lists of a maximum length of 100
 -- A maximum length was chosen, because otherwise the testing of the properties
 -- would take a big amount of resources and wouldn't finish timely.
--- We started out at 100, but this took to long and we scaled down to 20.
+-- We started out at 100, but this took to long and we scaled down to 10, to allow for the induction test to finish in a reasonable amount of time.
 listGeneratorWithMaxLength :: Gen [Int]
 listGeneratorWithMaxLength = sized $ \n -> do
-  k <- choose (0, 20)
+  k <- choose (0, 10)
   vectorOf k arbitrary
 
 main :: IO ()
@@ -58,7 +58,7 @@ main = do
   -- Which contains "\ETX" two times, meaning the outcome is not unique.
   -- This is appearently the intended behaviour of the subsequences function.
   -- Thus we expect the following test to fail.
-  quickCheck $ prop_uniqueness "\ETX\ETX"
+  quickCheck $ expectFailure $ prop_uniqueness "\ETX\ETX"
 
   -- We test the result of a empty list.
   -- The test passes.
@@ -80,7 +80,15 @@ main = do
 
   -- We are testing a mathematical fact, namely that if A is a finite set with |A| = n, then
   -- P(A) = 2^n. However, we are not proving this by these tests. A mathematical proof by induction should be done for that instead.
+  -- The test passes for 100 tests.
+  -- Thus the length of the power set of a list is equal to two to the power of the length of the original list.
   quickCheck $ forAll listGeneratorWithMaxLength prop_lengthOfPowerSet
+
+  -- We also test the length of the power set of a list by induction.
+  -- The test passes for 100 tests.
+  -- We do this by generating two lists and concatenating them.
+  -- Then we check if the length of the power set of the concatenated list is equal to two to the power of the length of the original lists.
+  quickCheck $ forAll listGeneratorWithMaxLength $ \xs -> forAll listGeneratorWithMaxLength $ prop_lengthOfPowerSetInduction xs
 
 -- It was quite hard to test above mentioned properties, this was due to a
 -- lack of understanding of the subsequences function and its specification.
