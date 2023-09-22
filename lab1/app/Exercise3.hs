@@ -1,4 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
+
 module Exercise3 where
 
 import Data.List

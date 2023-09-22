@@ -1,7 +1,7 @@
 module Exercise5 where
 
-import Test.QuickCheck
 import Data.List
+import Test.QuickCheck
 
 data Boy = Matthew | Peter | Jack | Arnold | Carl
   deriving (Eq, Show)
@@ -39,9 +39,9 @@ honest = filter (\boy -> length (accusers boy) == 2) boys
 -- Determine the guilty boy based on the accusations and the teacher's statement
 guilty :: [Boy]
 guilty =
-    let liars = filter (\boy -> length (accusers boy) == 2) boys
-        possibleGuilty = nub (concatMap accusers liars) \\ liars
-    in if length possibleGuilty == 1 then possibleGuilty else []
+  let liars = filter (\boy -> length (accusers boy) == 2) boys
+      possibleGuilty = nub (concatMap accusers liars) \\ liars
+   in if length possibleGuilty == 1 then possibleGuilty else []
 
 -- Exercise 5
 

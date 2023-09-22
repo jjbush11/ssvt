@@ -1,7 +1,7 @@
 module Exercise6 where
 
-import Test.QuickCheck
 import Lecture3
+import Test.QuickCheck
 
 -- Exercise 6
 -- Converting from first-order logic
@@ -26,11 +26,9 @@ example4 = Neg (Impl (Prop 1) (Cnj [Prop 2, Prop 3]))
 example5 :: Form
 example5 = Impl (Cnj [Prop 1, Dsj [Prop 2, Prop 3]]) (Prop 4)
 
-
--- Convert to negation normal form 
+-- Convert to negation normal form
 cnf :: Form -> Form
 cnf = nnf . arrowfree
-
 
 -- Eliminate implications
 -- Repeatedly replace P -> Q with ~P v Q
@@ -39,6 +37,6 @@ cnf = nnf . arrowfree
 
 main :: IO ()
 main = do
-  putStrLn $ concatMap (\e -> show e ++ " \n" ) [example1, example2, example3, example4, example5]
-  putStrLn $ concatMap (\e -> show (cnf e) ++ " \n" ) [example1, example2, example3, example4, example5]
+  putStrLn $ concatMap (\e -> show e ++ " \n") [example1, example2, example3, example4, example5]
+  putStrLn $ concatMap (\e -> show (cnf e) ++ " \n") [example1, example2, example3, example4, example5]
   print $ cnf form2

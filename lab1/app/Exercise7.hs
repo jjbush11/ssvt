@@ -22,7 +22,7 @@ nsub :: Form -> Int
 nsub form = sizeSet $ nsub' emptySet form
   where
     nsub' :: Set Form -> Form -> Set Form
-    nsub' subforms formula = insertSet formula $ 
+    nsub' subforms formula = insertSet formula $
       case formula of
         Prop _ -> subforms
         Neg f -> nsub' subforms f
@@ -30,8 +30,8 @@ nsub form = sizeSet $ nsub' emptySet form
         Dsj fs -> recurse fs
         Impl f1 f2 -> recurse [f1, f2]
         Equiv f1 f2 -> recurse [f1, f2]
-        where
-          recurse = unionSets . map (nsub' subforms)
+      where
+        recurse = unionSets . map (nsub' subforms)
 
 arbitraryPositiveInt :: Int -> Gen Int
 arbitraryPositiveInt n = choose (1, n :: Int)
