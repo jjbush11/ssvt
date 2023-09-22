@@ -50,6 +50,25 @@ oddLengthIntList = do
   shuffledValues <- shuffle values
   return shuffledValues
 
+-- This function checks if two lists are derangements of each other.
+-- The functions loops through the lists recursively.
+-- It constanstly compares the heads of the list and then parses the tail of the list to itself.
+-- If the tails of the list are equal to each other the list is not a dergement.
+-- And if the length of the list are different then it also isn't a derangement.
+isDerangement :: Eq a => [a] -> [a] -> Bool
+isDerangement original derangement
+  | length derangement /= length original = False
+  | null derangement = True
+  | otherwise = (head original /= head derangement) && isDerangement (tail original) (tail derangement)
+
+-- This function generates all the derangement of a list.
+-- The algorithm first calculates all the permutations of the original list.
+-- After calculating all the permutations it filters out all the lists
+-- that aren't derangements of the original list.
+-- The list you end up with only contains derangements of the original list.
+deran :: Int -> [[Int]]
+deran n = filter (\x -> isDerangement x [0 .. n - 1]) (permutations [0 .. n - 1])
+
 -- Props
 -- isDerangement tests
 -- This function checks if two known derangements are derangements of each other
@@ -94,7 +113,7 @@ prop_checkIfAListWithOneElementIsADerangementOfItself n = isDerangement [n] [n]
 prop_checkIfUnequalListsCanBeADerangement :: Bool
 prop_checkIfUnequalListsCanBeADerangement = isDerangement [1, 0] [0, 1, 2]
 
--- deran test
+-- Deran test
 -- This function checks if all the generated derangements have the same length as the orinal array
 prop_checkIfTheLenghtOfDerangementsAreTheSameAsTheOriginal :: Int -> Bool
 prop_checkIfTheLenghtOfDerangementsAreTheSameAsTheOriginal n = myForAll (deran n) (\x -> length x == length [0 .. n - 1])
@@ -102,25 +121,6 @@ prop_checkIfTheLenghtOfDerangementsAreTheSameAsTheOriginal n = myForAll (deran n
 -- This function checks if all the generated derangements are indeed derangements of the original
 prop_checkIfEveryElementIsADerangementOfTheOriginal :: Int -> Bool
 prop_checkIfEveryElementIsADerangementOfTheOriginal n = myForAll (deran n) (isDerangement [0 .. n - 1])
-
--- This function checks if two lists are derangements of each other.
--- The functions loops through the lists recursively.
--- It constanstly compares the heads of the list and then parses the tail of the list to itself.
--- If the tails of the list are equal to each other the list is not a dergement.
--- And if the lenght of the list are different then it also isn't a derangement.
-isDerangement :: Eq a => [a] -> [a] -> Bool
-isDerangement original derangement
-  | length derangement /= length original = False
-  | null derangement = True
-  | otherwise = (head original /= head derangement) && isDerangement (tail original) (tail derangement)
-
--- This function generates all the derangement of a list.
--- The algorithm first calculates all the permutations of the orignal list.
--- After calculating all the permutations it filters out all the lists
--- that aren't derangements of the orignal list.
--- The list you end up with only contains derangement of the original list.
-deran :: Int -> [[Int]]
-deran n = filter (\x -> isDerangement x [0 .. n - 1]) (permutations [0 .. n - 1])
 
 main :: IO ()
 main = do
