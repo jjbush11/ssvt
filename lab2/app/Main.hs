@@ -11,7 +11,7 @@ import Exercise8
 import Exercise9
 
 lab :: Int
-lab = undefined
+lab = 2
 
 printTesting :: Int -> IO ()
 printTesting exercise = putStrLn $ "\n** Performing tests for Lab " ++ show lab ++ " Exercise " ++ show exercise

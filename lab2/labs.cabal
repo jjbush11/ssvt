@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               lab
+name:               lab2
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -37,8 +37,9 @@ executable labs
                     Lecture1,
                     Lecture2,
                     Lecture3,
-                    SetOrd
-                    
+                    SetOrd,
+                    LTS
+
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base ^>=4.16.4.0
