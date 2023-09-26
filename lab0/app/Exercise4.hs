@@ -1,4 +1,4 @@
-module Lab0.Exercise4 where
+module Exercise4 where
 
 import Data.Foldable
 import Data.Maybe
