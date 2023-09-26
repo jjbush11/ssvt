@@ -36,12 +36,3 @@ main = do
   -- Lab 1 Exercise 6
   printTesting 6
   Exercise6.main
-  -- Lab 1 Exercise 7
-  printTesting 7
-  Exercise7.main
-  -- Lab 1 Exercise 8
-  printTesting 8
-  Exercise8.main
-  -- Lab 1 Exercise 9
-  printTesting 9
-  Exercise9.main
