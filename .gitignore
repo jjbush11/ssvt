@@ -8,6 +8,3 @@ cabal.project.local
 
 # macOS
 .DS_Store
-
-# unrelated
-*.pdf
