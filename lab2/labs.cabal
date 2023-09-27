@@ -43,5 +43,7 @@ executable labs
                       , QuickCheck ^>=2.14.2
                       , random ^>=1.2.1
                       , containers ^>= 0.6.7
+                      , graphviz ^>= 2999.20.1.0
+                      , text ^>= 2.0.2
     hs-source-dirs:   app
     default-language: Haskell2010
