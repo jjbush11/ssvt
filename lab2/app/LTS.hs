@@ -128,6 +128,7 @@ createLTS transitions = (states, filter (/= tau) $ makeSet (map (\(_,label,_) ->
 makeSet :: Ord a => [a] -> [a]
 makeSet = sort . nub
 
+
 -- Door implementations
 doorImpl1 :: State -> Label -> (State, Label)
 doorImpl1 0 "close" = (1, "closed")
