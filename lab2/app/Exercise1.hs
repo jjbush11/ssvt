@@ -12,11 +12,11 @@ import Data.List
 -- 4. Check if the initial state is valid.
 
 -- Invalid LTS factors
--- 1. states are infinite or empty
--- 2. labels are infinite
--- 3. transitions contain states that are not available in the set of states
--- 4. transitions contain labels that are not available in the set of labels
--- 5. initial state is not available in the set of states
+-- 1. States are infinite or empty
+-- 2. Labels are infinite
+-- 3. Transitions contain states that are not available in the set of states
+-- 4. Transitions contain labels that are not available in the set of labels
+-- 5. Initial state is not available in the set of states
 
 validateLTS :: IOLTS -> Bool
 validateLTS (states, inputLabels, outputLabels, transitions, initialState) =
@@ -66,12 +66,12 @@ invalidInitialState = (states, inputLabels, outputLabels, transitions, updatedIn
     (states, inputLabels, outputLabels, transitions, initialState) = counterModel
     updatedInitialState = 5
 
-
-
-
 main :: IO ()
 main = do
   print counterModel
   print $ validateLTS counterModel
   quickCheck $ expectFailure $ validateLTS invalidInitialState
   quickCheck $ validateLTS counterModel
+
+
+-- Time Spent: 2 hour
