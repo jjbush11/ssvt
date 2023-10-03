@@ -63,4 +63,4 @@ main = do
   quickCheck $ forAll allPossibleTransitionslIOLTS validateLTS
 
 
--- Time Spent: 1 hour
+-- Time Spent: 2.5 hour
