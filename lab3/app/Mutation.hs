@@ -22,7 +22,11 @@ mutateOrNothing output mutant res
 propertyExecutor :: (Eq a) => (a -> Integer -> Bool) -> a -> Integer -> Gen Bool
 propertyExecutor prop mutant x = return $ prop mutant x
 
--- Applies a mutator to a property and function under test, then returns whether the mutant is killed (False), whether it lives (True), or that the mutant did not change the output (empty list)
+-- | Applies a mutator to a property and function under test, then returns whether the mutant is killed (False), whether it lives (True), or that the mutant did not change the output (empty list)
+--
+-- The function takes a mutator function, a list of property functions, a function under test, an input value for the function under test.
+-- The mutator function is applied to the output of the function under test, and the resulting mutant is tested against each property function in the list.
+-- The function returns a list of Boolean values, where each value represents whether the corresponding mutant was killed (False), whether it lived (True), or whether it did not change the output (empty list).
 mutate' :: (Eq a) => (a -> Gen a) -> [a -> Integer -> Bool] -> (Integer -> a) -> Integer -> Gen [Bool]
 mutate' mutator prop fut input = mutation >>= \mutant -> mutateOrNothing' output mutant (propertyExecutor' prop mutant input)
   where
