@@ -7,9 +7,8 @@ import Test.QuickCheck
 -- Not sure if the type definition is correct
 -- I have the feeling that it should be dependant on a function under test
 -- In that case the type definition should be something like:
--- calculateConjectures :: [a -> Integer -> Bool] -> (Integer -> a) -> [(a -> Integer -> Bool, a -> Integer -> Bool)]
-calculateConjectures :: [a -> Integer -> Bool] -> [(a -> Integer -> Bool, a -> Integer -> Bool)]
-calculateConjectures = undefined 
+calculateConjectures :: [Integer -> Gen [Integer]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [([a -> Integer -> Bool], [a -> Integer -> Bool])]
+calculateConjectures mutators props fut = undefined
 
 main :: IO ()
 main = do

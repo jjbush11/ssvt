@@ -38,7 +38,6 @@ duplicateElements xs = return $ xs ++ xs
 emptyList :: [Integer] -> Gen [Integer]
 emptyList xs = return []
 
-
 -- Single element list: Returns a list with a single element
 -- Strength: Useful to verify if the function handles single element lists correctly
 -- Weakness: Only specific to single element list scenarios
@@ -52,6 +51,30 @@ singleElementList xs = return [head xs]
 -- Weakness: Not very useful for sign agnostic functions
 negateElements :: [Integer] -> Gen [Integer]
 negateElements xs = return $ map negate xs
+
+-- Zeroing elements: Sets all elements in the list to zero
+-- Strength: Useful to check if the function handles zero correctly
+-- Weakness: Not very useful for functions that do not handle zero
+zeroElements :: [Integer] -> Gen [Integer]
+zeroElements xs = return $ map (const 0) xs
+
+-- Shuffling elements: Shuffles the elements in the list
+-- Strength: Useful to check if the function handles shuffled lists correctly
+-- Weakness: Not very useful for functions that do not handle shuffled lists
+shuffleElements :: [Integer] -> Gen [Integer]
+shuffleElements xs = do
+  shuffle xs
+
+powElements :: [Integer] -> Gen [Integer]
+powElements xs = return $ map (^2) xs
+
+multiplyByArbitrary :: [Integer] -> Gen [Integer]
+multiplyByArbitrary xs = do
+  n <- arbitrary
+  return $ map (* n) xs
+
+addOneToElements :: [Integer] -> Gen [Integer]
+addOneToElements xs = return $ map (+1) xs
 
 
 main :: IO ()

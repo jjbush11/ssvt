@@ -1,13 +1,93 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module Exercise3 where
 
-import Test.QuickCheck
+import Control.Monad
+import Data.List
+import Exercise1
+import Exercise2
 import Lecture3 (p)
+import MultiplicationTable
+import Mutation
+import Test.QuickCheck
+
+-- Data type for a property and its name/description
+data PropertyData = PropertyData
+  { name :: String,
+    prop :: [Integer] -> Integer -> Bool
+  }
+
+-- Show instance for PropertyData
+instance Show PropertyData where
+  show :: PropertyData -> String
+  show (PropertyData name _) = name
+
+-- A list of all properties with the Property datatype
+-- properties :: [PropertyData]
+-- properties = [
+--   PropertyData "prop_tenElements" prop_tenElements,
+--   PropertyData "prop_firstElementIsInput" prop_firstElementIsInput,
+--   PropertyData "prop_sumIsTriangleNumberTimesInput" prop_sumIsTriangleNumberTimesInput,
+--   PropertyData "prop_linear" prop_linear,
+--   PropertyData "prop_moduloIsZero" prop_moduloIsZero
+--   ]
+
+-- Filter out the elements based on the given indices
+filterProperties :: [Int] -> [a] -> [a]
+filterProperties indices xs = map snd $ filter (\(i, _) -> i `elem` indices) $ zip [0 ..] xs
 
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
-calculateMinimalPropertySubsets :: [a -> Integer -> Bool] -> (Integer -> a) -> [[a -> Integer -> Bool]]
-calculateMinimalPropertySubsets properties functionUnderTest = undefined
+
+-- So the idea around this task is to find the minimal property subsets.
+-- The approach we use is as follows:
+-- 1. Gennerate all property subsets, by making use of subsequences.
+-- Due to this approach, there will be 2^n subsets, where n is the number of properties.
+-- For the case of multiplicationTable, this means 2^5 = 32 - 1 (the empty set) subsets.
+-- Due to this exponential increase in subsets, the program might take a while to run if the number of properties is increased.
+-- 2. For each subset, use the countSurvivors function to determine how many mutants survive when tested against that subset.
+-- 3. Rank the subsets by effectiveness
+-- 4. Among thes subsets, identify one that is both minimal in size and most effective at killing mutants
+-- calculateMinimalPropertySubsets :: [[Integer] -> Gen [Integer]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[[Integer] -> Integer -> Bool]]
+calculateMinimalPropertySubsets mutators properties functionUnderTest = do
+  -- For each subset, use the countSurvivors function to determine how many mutants survive when tested against the subset.
+  -- Return tuples of the subset and the number of survivors
+  base <- executeMutation mutators 4000 properties functionUnderTest
+
+  let allMutants = concat base
+
+  -- For all subsets, apply filterProperties to filter out the properties that are not in the subset
+  filteredSubsets <- forM allPropertiesSubsets $ \subset -> do
+    return (subset, map (filterProperties subset) allMutants)
+
+  -- For each subset, determine if the mutants survive or not
+  survivors <- forM filteredSubsets $ \(subset, mutants) -> do
+    return (subset, map and mutants)
+
+  -- Count the number of survivors for each subset
+  survivorsCount <- forM survivors $ \(subset, survivors) -> do
+    return (subset, length $ filter id survivors)
+
+  -- Sort the subsets by the number of survivors and the size of the subset ascending
+  let sortedSubsets = reverse $ sortBy (\(subset1, survivors1) (subset2, survivors2) -> compare (length subset1, survivors1) (length subset2, survivors2)) survivorsCount
+
+  -- print survivorsCount
+  print sortedSubsets
+  where
+    propertieNumbers = [0 .. length properties - 1]
+    propertiesMap = zip propertieNumbers properties
+    -- Generate all subsets, excluding the empty set
+    -- The empty set is excluded because that doesn't aid us in finding the minimal property subsets
+    allPropertiesSubsets = tail $ subsequences propertieNumbers
+
+    -- Helper function to count survivors for a subset of properties
+    countSurvivorsForSubset propertiesSubset = (propertiesSubset, countSurvivors mutators 4000 propertiesSubset functionUnderTest)
+
+-- iss: A list of lists of integers, where each inner list represents
+-- a set of property indices that form an equivalence class with the same surviving mutants.
 
 main :: IO ()
 main = do
+  let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements]
+  hoi <- calculateMinimalPropertySubsets mutators multiplicationTableProps multiplicationTable
   print "Hello World"
