@@ -86,6 +86,11 @@ calculateMinimalPropertySubsets mutators properties functionUnderTest = do
 -- iss: A list of lists of integers, where each inner list represents
 -- a set of property indices that form an equivalence class with the same surviving mutants.
 
+-- Which has more priority? as subset with (say) 5% more survivors but 20% less properties, 
+-- or a subset with 5% less survivors but 20% more property
+-- And which property is stronger and thus which subset of properties is the most minimal subset if there are two or more subsets of the same lenght with the same amount of survivors.
+
+
 main :: IO ()
 main = do
   let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements]
