@@ -11,19 +11,21 @@ import MultiplicationTable
 import Mutation
 import Test.QuickCheck
 
-data Implication = Implication {
-  antecedent :: [Int],
-  consequent :: [Int]
-} deriving (Eq)
+data Implication = Implication
+  { antecedent :: [Int],
+    consequent :: [Int]
+  }
+  deriving (Eq)
 
 instance Show Implication where
   show :: Implication -> String
   show (Implication antecedent consequent) = show antecedent ++ " → " ++ show consequent
 
-data WeightedImplication = WeightedImplication {
-  implication :: Implication,
-  weight :: Int
-} deriving (Show)
+data WeightedImplication = WeightedImplication
+  { implication :: Implication,
+    weight :: Int
+  }
+  deriving (Show)
 
 -- Filter out the elements based on the given indices
 createSubset :: [Int] -> [a] -> [a]
@@ -36,12 +38,11 @@ isSubsetOf resultsA resultsB = and $ zipWith (-->) resultsA resultsB
 hasSurvived :: [Bool] -> Bool
 hasSurvived = and
 
-
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
 
 -- So the idea around this task is to find the minimal property subsets.
--- The original approach we use is as follows:
+-- The original approach we used was as follows:
 -- 1. Generate all property subsets, by making use of subsequences.
 -- Due to this approach, there will be 2^n subsets, where n is the number of properties.
 -- For the case of multiplicationTable, this means 2^5 = 32 - 1 (the empty set) subsets.
@@ -49,11 +50,10 @@ hasSurvived = and
 -- 2. For each subset, use the countSurvivors function to determine how many mutants survive when tested against that subset.
 -- 3. Rank the subsets by effectiveness
 -- 4. Among thes subsets, identify one that is both minimal in size and most effective at killing mutants
-
-
--- However, this approach seemed rather inefficient, so we decided to take a different approach.
--- The inneficiency of the previous approach was that it would calculate the number of survivors for each subset.
--- This can also be inferred from the result of the executeMutation function.
+--
+-- However, this approach seemed rather inefficient, because it would calculate the number of survivors for each subset.
+-- But the results would then not be comparible, because the total of valid mutants might be different for each subset.s
+-- Thus we decided to refactor the code from Exercise 2, to be able  to inferre it from the result of the executeMutation function.
 -- calculateMinimalPropertySubsets :: [[Integer] -> Gen [Integer]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[[Integer] -> Integer -> Bool]]
 calculateMinimalPropertySubsets mutators properties functionUnderTest = do
   -- For each subset, use the countSurvivors function to determine how many mutants survive when tested against the subset.
@@ -75,14 +75,14 @@ calculateMinimalPropertySubsets mutators properties functionUnderTest = do
   -- Count the number of survivors for each subset
   let survivorsCount = [(subset, length results) | (subset, results) <- survivors]
   print $ map snd survivorsCount
+  
+    -- Sort the subsets by the number of survivors and the size of the subset ascending
+    -- let sortedSubsets = sortBy (\(subset1, survivors1) (subset2, survivors2) -> compare (length subset1, survivors1) (length subset2, survivors2)) survivorsCount
 
-  -- Sort the subsets by the number of survivors and the size of the subset ascending
-  -- let sortedSubsets = sortBy (\(subset1, survivors1) (subset2, survivors2) -> compare (length subset1, survivors1) (length subset2, survivors2)) survivorsCount
-
-  -- Determine if a subset is a subset of another subset for each subset
-  -- This is done by using the isSubsetOf function and the filteredSubsets
-  -- The result is a list of lists of integers, where each inner list represents a set of property indices that form an equivalence class with the same surviving mutants.
-  where
+    -- Determine if a subset is a subset of another subset for each subset
+    -- This is done by using the isSubsetOf function and the filteredSubsets
+    -- The result is a list of lists of integers, where each inner list represents a set of property indices that form an equivalence class with the same surviving mutants.
+  where 
     propertieNumbers = [0 .. length properties - 1]
     propertiesMap = zip propertieNumbers properties
     -- Generate all subsets, excluding the empty set
