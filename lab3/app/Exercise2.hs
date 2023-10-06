@@ -37,6 +37,8 @@ executeMutation' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Int
 executeMutation' mutators nMutants properties fut = do
   -- Generate a list of random inputs for the mutants
   -- The same inputs are used for each mutator
+  -- TO-DO: Explain why!
+  -- The TA said that it wasn't of importance to generate different inputs for each iteration of the mutate' function
   let input = 1
 
   -- For each mutator, create n generators using the generated inputs and test against properties
@@ -58,11 +60,12 @@ executeMutation' mutators nMutants properties fut = do
 -- countSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> [[Integer] -> Gen [Integer]] -> (Integer -> [Integer]) -> Integer
 countSurvivors :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO Integer
 countSurvivors mutators nMutants properties fut = do
-  --
+  -- We first execute the executeMutation function to get the raw results
   res <- executeMutation mutators nMutants properties fut
-  -- We first apply and to each list of Bool values,
+  -- We first apply and to each list of result of the mutate' function, which is a list of Bool.
   -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
-  -- After that, we count the number of survivors by counting the number of True values.
+  -- We then filter out the False values, because we are interested in the number of survivors.
+  -- After that, we count the number of survivors by determining the length of the list.
   return $ fromIntegral $ length $ filter id $ map and res
 
 countSurvivors' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> Gen Integer

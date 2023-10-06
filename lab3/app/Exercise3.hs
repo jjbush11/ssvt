@@ -38,6 +38,9 @@ isSubsetOf resultsA resultsB = and $ zipWith (-->) resultsA resultsB
 hasSurvived :: [Bool] -> Bool
 hasSurvived = and
 
+calculateWeightOfImplication :: Int -> Int -> Int -> Int
+calculateWeightOfImplication totalMutants survivorsA survivorsB = (survivorsA - survivorsB) * (totalMutants - survivorsA)
+
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
 
@@ -49,45 +52,37 @@ hasSurvived = and
 -- Due to this exponential increase in subsets, the program might take a while to run if the number of properties is increased.
 -- 2. For each subset, use the countSurvivors function to determine how many mutants survive when tested against that subset.
 -- 3. Rank the subsets by effectiveness
--- 4. Among thes subsets, identify one that is both minimal in size and most effective at killing mutants
+-- 4. Among these subsets, identify one that is both minimal in size and most effective at killing mutants
 --
 -- However, this approach seemed rather inefficient, because it would calculate the number of survivors for each subset.
--- But the results would then not be comparible, because the total of valid mutants might be different for each subset.s
--- Thus we decided to refactor the code from Exercise 2, to be able  to inferre it from the result of the executeMutation function.
+-- But the results would then not be comparible, because the total of valid mutants might be different for each subset.
+-- Thus we decided to refactor the code from Exercise 2, to be able to inferre it from the result of the executeMutation function.
 -- calculateMinimalPropertySubsets :: [[Integer] -> Gen [Integer]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[[Integer] -> Integer -> Bool]]
 calculateMinimalPropertySubsets mutators properties functionUnderTest = do
-  -- For each subset, use the countSurvivors function to determine how many mutants survive when tested against the subset.
-  -- Return tuples of the subset and the number of survivors
+  -- We first execute the executeMutation function to get the raw results
   mutationResults <- executeMutation mutators 4000 properties functionUnderTest
 
-  -- For all subsets, apply filterProperties to filter out the properties that are not in the subset
+  let totalMutants = length mutationResults
+
+  -- Create a list of tuples, where each tuple contains a subset of properties and the results of the mutation for that subset
   let filteredSubsets = [(subset, map (createSubset subset) mutationResults) | subset <- allPropertiesSubsets]
 
   -- For each subset, determine if the mutants survive or not
   let survivors = [(propertySubset, map hasSurvived results) | (propertySubset, results) <- filteredSubsets]
 
+  -- Count the number of survivors for each subset
+  let survivorsCount = [(subset, length $ filter id results) | (subset, results) <- survivors]
+  print $ map snd survivorsCount
+
+  -- Determine implication between subsets of properties
   let implications = [(subsetA, subsetB) | (subsetA, resultsA) <- survivors, (subsetB, resultsB) <- survivors, subsetA /= subsetB, resultsA `isSubsetOf` resultsB]
 
   print implications
-
-  -- Determine implication between subsets of properties
-
-  -- Count the number of survivors for each subset
-  let survivorsCount = [(subset, length results) | (subset, results) <- survivors]
-  print $ map snd survivorsCount
-  
-    -- Sort the subsets by the number of survivors and the size of the subset ascending
-    -- let sortedSubsets = sortBy (\(subset1, survivors1) (subset2, survivors2) -> compare (length subset1, survivors1) (length subset2, survivors2)) survivorsCount
-
-    -- Determine if a subset is a subset of another subset for each subset
-    -- This is done by using the isSubsetOf function and the filteredSubsets
-    -- The result is a list of lists of integers, where each inner list represents a set of property indices that form an equivalence class with the same surviving mutants.
-  where 
-    propertieNumbers = [0 .. length properties - 1]
-    propertiesMap = zip propertieNumbers properties
+  where
+    propertyNumbers = [0 .. length properties - 1]
     -- Generate all subsets, excluding the empty set
     -- The empty set is excluded because that doesn't aid us in finding the minimal property subsets
-    allPropertiesSubsets = tail $ subsequences propertieNumbers
+    allPropertiesSubsets = tail $ subsequences propertyNumbers
 
 -- iss: A list of lists of integers, where each inner list represents
 -- a set of property indices that form an equivalence class with the same surviving mutants.

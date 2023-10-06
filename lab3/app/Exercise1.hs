@@ -16,7 +16,6 @@ import Data.List
 -- 5. Negating elements
 -- 6. Zeroing elements
 
-
 -- Additional Mutators
 -- Sorting mutator: Sorts the list
 -- Strength: It can identify if the property is order dependent
@@ -68,6 +67,7 @@ shuffleElements xs = do
 powElements :: [Integer] -> Gen [Integer]
 powElements xs = return $ map (^2) xs
 
+-- Multiply by arbitrary: Multiplies all elements in the list by an arbitrary number
 multiplyByArbitrary :: [Integer] -> Gen [Integer]
 multiplyByArbitrary xs = do
   n <- arbitrary
