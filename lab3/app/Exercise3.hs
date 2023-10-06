@@ -41,6 +41,20 @@ hasSurvived = and
 calculateWeightOfImplication :: Int -> Int -> Int -> Int
 calculateWeightOfImplication totalMutants survivorsA survivorsB = (survivorsA - survivorsB) * 100 `div` totalMutants
 
+-- -- Check if a set of properties implies all other properties
+-- impliesAll :: [Implication] -> [Int] -> [Int] -> Bool
+-- impliesAll closure props allProps = 
+--     let impliedProps = nub $ concat [y | (x, y) <- closure, all (`elem` x) props]
+--     in all (`elem` impliedProps) allProps
+
+-- -- Determine minimal property subsets
+-- minimalPropertySubsets :: [Implication] -> [Int]
+-- minimalPropertySubsets closure = 
+--     let allProps = nub $ concatMap fst closure ++ concatMap snd closure
+--         propCombinations = sortOn length $ subsequences allProps
+--         minimalSubsets = filter (\props -> impliesAll closure props allProps) propCombinations
+--     in minimalSubsets
+
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
 
@@ -65,31 +79,32 @@ calculateMinimalPropertySubsets mutators properties functionUnderTest = do
   let totalMutants = length mutationResults
 
   -- Create a list of tuples, where each tuple contains a subset of properties and the results of the mutation for that subset
-  let filteredSubsets = [(subset, map (createSubset subset) mutationResults) | subset <- allPropertiesSubsets]
+  let propertySubsets = [(subset, map (createSubset subset) mutationResults) | subset <- propertySubsequences]
 
   -- For each subset, determine if the mutants survive or not
-  let survivors = [(propertySubset, map hasSurvived results) | (propertySubset, results) <- filteredSubsets]
+  let subsetSurvivors = [(propertySubset, map hasSurvived results) | (propertySubset, results) <- propertySubsets]
 
   -- Count the number of survivors for each subset
-  let survivorsCount = [(subset, length $ filter id results) | (subset, results) <- survivors]
+  let survivorsCount = [(subset, length $ filter id results) | (subset, results) <- subsetSurvivors]
   print $ map snd survivorsCount
 
   -- Determine implication between subsets of properties
-  let implications = [(subsetA, subsetB) | (subsetA, resultsA) <- survivors, (subsetB, resultsB) <- survivors, subsetA /= subsetB, resultsA `isSubsetOf` resultsB]
+  let implications = [(subsetA, subsetB) | (subsetA, resultsA) <- subsetSurvivors, (subsetB, resultsB) <- subsetSurvivors, subsetA /= subsetB, resultsA `isSubsetOf` resultsB]
 
-  print implications
+  -- print implications
+  print propertySubsequences
   where
     propertyNumbers = [0 .. length properties - 1]
     -- Generate all subsets, excluding the empty set
     -- The empty set is excluded because that doesn't aid us in finding the minimal property subsets
-    allPropertiesSubsets = tail $ subsequences propertyNumbers
+    propertySubsequences = tail $ subsequences propertyNumbers
 
 -- iss: A list of lists of integers, where each inner list represents
 -- a set of property indices that form an equivalence class with the same surviving mutants.
 
--- Which has more priority? as subset with (say) 5% more survivors but 20% less properties,
--- or a subset with 5% less survivors but 20% more property
--- And which property is stronger and thus which subset of properties is the most minimal subset if there are two or more subsets of the same lenght with the same amount of survivors.
+-- Which has more priority? A subset with (say) 5% more survivors but 20% less properties,
+-- or a subset with 5% less survivors but 20% more property.
+-- And which property is stronger and thus which subset of properties is the most minimal subset if there are two or more subsets of the same length with the same amount of survivors.
 
 main :: IO ()
 main = do
