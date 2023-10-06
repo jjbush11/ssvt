@@ -9,51 +9,70 @@ import FitSpec (testFitSpec)
 
 -- input can be constant, e.g. 1 
 
+data Result = Result {
+    rawResult :: [Bool],
+    survivors :: Int,
+    nMutants :: Int,
+    propertyIndices :: [Int]
+} deriving (Show)
 
 
--- Exercise 2
--- Where the first argument is the number of mutants (4000 in the FitSpec example), 
--- the second argument is the list of properties, and 
--- the third argument is the function under test (the multiplication table function in this case).
--- A fourth argument is added to accept a list of mutators.
--- The output is the number of surviving mutants (0 in the FitSpec example).
--- countSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> [[Integer] -> Gen [Integer]] -> (Integer -> [Integer]) -> Integer
-countSurvivors :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO Integer
-countSurvivors mutators nMutants properties fut = do
-    -- Generate a list of random inputs for the mutants
-    -- The same inputs are used for each mutator
-    -- By doing this, we can compare the effectiveness of the mutators
-    inputs <- generate $ vectorOf (fromIntegral nMutants) arbitrary
-
-    -- For each mutator, generate mutants using the generated inputs and test against properties
-    results <- forM mutators $ \mutator -> do
-        forM inputs $ \input -> do
-            result <- generate (mutate' mutator properties fut input)
-            -- -- If one of the properties fails, return False
-            -- -- If the result is empty, return False as well 
-            -- return $ any (== False) result
-            -- If all of the properties hold (i.e. all values True), return True (survived)
-            -- If the result is empty, return False as well 
-            return $ and result
-
-    return $ fromIntegral $ length $ filter id $ concat results
-
--- executeMutation :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[Bool]]
--- executeMutation :: (Integral a1, Eq a2) => [a2 -> Gen a2] -> a1 -> [a2 -> Integer -> Bool] -> (Integer -> a2) -> IO [[[Bool]]]
+executeMutation :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[Bool]]
 executeMutation mutators nMutants properties fut = do
     -- Generate a list of random inputs for the mutants
     -- The same inputs are used for each mutator
-    -- By doing this, we can compare the effectiveness of the mutators
     inputs <- generate $ vectorOf (fromIntegral nMutants) (arbitrary `suchThat` (> 0))
 
     -- For each mutator, generate mutants using the generated inputs and test against properties
     results <- forM mutators $ \mutator -> do
         forM inputs $ \input -> do
-            result <- generate (mutate' mutator properties fut input)
-            return result
+            generate (mutate' mutator properties fut input)
 
-    -- filter out empty lists from each mutator
-    return $ map (filter (not . null)) results
+    -- Filter out empty lists from each mutator, because they are not valid mutants
+    return $ concatMap (filter (not . null)) results
+    where
+        propertiesIndices = [1..(length properties)]
+
+executeMutation' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> Gen [[Bool]]
+executeMutation' mutators nMutants properties fut = do
+    -- Generate a list of random inputs for the mutants
+    -- The same inputs are used for each mutator
+    let input = 1
+
+    -- For each mutator, create n generators using the generated inputs and test against properties
+    results <- forM mutators $ \mutator -> do
+        replicateM (fromIntegral nMutants) $ do
+            mutate' mutator properties fut input
+
+    -- Filter out empty lists from each mutator, because they are not valid mutants
+    return $ concatMap (filter (not . null)) results
+    where
+        propertiesIndices = [1..(length properties)]
+
+-- Exercise 2
+-- Where the first argument is the mutators,
+-- the second argument is the number of mutants (4000 in the FitSpec example), 
+-- the third argument is the list of properties, and 
+-- the fourth argument is the function under test (the multiplication table function in this case).
+-- The output is the number of surviving mutants (0 in the FitSpec example).
+-- countSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> [[Integer] -> Gen [Integer]] -> (Integer -> [Integer]) -> Integer
+countSurvivors :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO Integer
+countSurvivors mutators nMutants properties fut = do
+    -- 
+    res <- executeMutation mutators nMutants properties fut
+    -- We first apply and to each list of Bool values, 
+    -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
+    -- After that, we count the number of survivors by counting the number of True values.
+    return $ fromIntegral $ length $ filter id $ map and res
+
+countSurvivors' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> Gen Integer
+countSurvivors' mutators nMutants properties fut = do
+    -- 
+    res <- executeMutation' mutators nMutants properties fut
+    -- We first apply and to each list of Bool values, 
+    -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
+    -- After that, we count the number of survivors by counting the number of True values.
+    return $ fromIntegral $ length $ filter id $ map and res
 
 printIO :: Show a => IO a -> IO ()
 printIO = (>>= print)
@@ -76,18 +95,22 @@ main = do
 
     let nMutants = 4000
     let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements]
-    survivors <- countSurvivors mutators nMutants properties fut
-    print survivors
-
-    -- Run fitspec for comparison to our own implementation
-    -- testFitSpec 
 
     -- Experimenting with the executeMutation function
     res <- executeMutation mutators nMutants properties fut
 
-    -- Are all elements within the list the same? 
-    let iets = res !! 3
-    print $ allElementsEqual iets
-    print $ map head (tail res)
-    print $ map allElementsEqual (tail res)
-    -- print res
+    -- Experimenting with the executeMutation' function
+    res' <- generate (executeMutation' mutators nMutants properties fut)
+
+    putStrLn $ "Length of two functions, are equal " ++ show (length res == length res')
+    putStrLn $ "The lengths are " ++ show (length res) ++ " and " ++ show (length res')
+
+    -- Experimenting with the countSurvivors function
+    survivors <- countSurvivors mutators nMutants properties fut
+    print survivors
+
+    -- Experimenting with the countSurvivors' function
+    printIO $ generate (countSurvivors' mutators nMutants properties fut)
+
+    -- Run fitspec for comparison to our own implementation
+    -- testFitSpec 
