@@ -68,14 +68,14 @@ countSurvivors mutators nMutants properties fut = do
   -- After that, we count the number of survivors by determining the length of the list.
   return $ fromIntegral $ length $ filter id $ map and res
 
-countSurvivors' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> Gen Integer
-countSurvivors' mutators nMutants properties fut = do
-  --
-  res <- executeMutation' mutators nMutants properties fut
-  -- We first apply and to each list of Bool values,
-  -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
-  -- After that, we count the number of survivors by counting the number of True values.
-  return $ fromIntegral $ length $ filter id $ map and res
+-- countSurvivors' :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> Gen Integer
+-- countSurvivors' mutators nMutants properties fut = do
+--   --
+--   res <- executeMutation' mutators nMutants properties fut
+--   -- We first apply and to each list of Bool values,
+--   -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
+--   -- After that, we count the number of survivors by counting the number of True values.
+--   return $ fromIntegral $ length $ filter id $ map and res
 
 printIO :: (Show a) => IO a -> IO ()
 printIO = (>>= print)
@@ -95,7 +95,7 @@ main = do
   results <- generate (mutate' mutator properties fut input)
   print results -- This will print a list of Bool values
   let nMutants = 4000
-  let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements]
+  let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements, anyList, emptyList]
 
   -- Experimenting with the executeMutation function
   res <- executeMutation mutators nMutants properties fut
@@ -111,7 +111,7 @@ main = do
   print survivors
 
   -- Experimenting with the countSurvivors' function
-  printIO $ generate (countSurvivors' mutators nMutants properties fut)
+--   printIO $ generate (countSurvivors' mutators nMutants properties fut)
 
 -- Run fitspec for comparison to our own implementation
 -- testFitSpec

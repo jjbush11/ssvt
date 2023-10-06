@@ -39,7 +39,7 @@ hasSurvived :: [Bool] -> Bool
 hasSurvived = and
 
 calculateWeightOfImplication :: Int -> Int -> Int -> Int
-calculateWeightOfImplication totalMutants survivorsA survivorsB = (survivorsA - survivorsB) * (totalMutants - survivorsA)
+calculateWeightOfImplication totalMutants survivorsA survivorsB = (survivorsA - survivorsB) * 100 `div` totalMutants
 
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
