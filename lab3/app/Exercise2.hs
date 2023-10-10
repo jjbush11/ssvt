@@ -9,8 +9,7 @@ import Test.QuickCheck
 import Data.List (transpose, subsequences)
 import qualified Data.Set as Set
 
--- input can be constant, e.g. 1
-
+-- Define some type aliases
 type PropertyId = Int
 type MutantId = Int
 
@@ -25,10 +24,12 @@ data PropertyAnalysis = PropertyAnalysis
     mutantsKilled :: Set.Set MutantId
   } deriving (Show, Eq, Ord)
 
+-- The following function generates a list of mutation results, given a list of mutators, a number of mutants, a list of properties, and a function under test.
+-- The result is then concatinated into a single list of [Bool].
+-- This function was created after refactoring, so that we can use the results to compute the analysis for all possible subsets.
 executeMutation :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[Bool]]
 executeMutation mutators nMutants properties fut = do
   -- Generate a list of random inputs for the mutants
-  -- The same inputs are used for each mutator
   inputs <- generate $ vectorOf (fromIntegral nMutants) (arbitrary `suchThat` (> 0))
 
   -- For each mutator, generate mutants using the generated inputs and test against properties
@@ -40,10 +41,8 @@ executeMutation mutators nMutants properties fut = do
   let filteredResults = concatMap (filter (not . null)) results
 
   return filteredResults
-  where
-    propertiesIndices = [1 .. (length properties)]
 
--- This function converts a list of results 
+-- This function converts a list of mutation results for a single property to a tuple of sets of surviving and killed mutants.
 boolToSets :: [Bool] -> (Set.Set MutantId, Set.Set MutantId)
 boolToSets booleans = go booleans 0 Set.empty Set.empty
   where
@@ -118,15 +117,14 @@ main = do
   -- This means that the combination of all properties is able to kill all mutants. 
   -- In the context of mutation testing, this means that the set of properties is complete.
 
-  -- een voorbeeld met minder mutators 
-  -- eentje met minderproperties 
-
-  let lessMutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary]
+  -- Since the number of survivors is 0, we can also conclude that a set of less mutators will have 0 survivors.
+  let lessMutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, powElements]
   survivorsLessMutators <- countSurvivors lessMutators nMutants properties fut
   putStrLn $ "The number of survivors with less mutators: " ++ show survivorsLessMutators
 
-
-  let lessProperties = [prop_tenElements, prop_firstElementIsInput, prop_sumIsTriangleNumberTimesInput, prop_linear, prop_moduloIsZero]
+  -- We can also conclude that a set of less properties will have more survivors.
+  -- Removing property prop_linear from the list of properties will result in 397 survivor.
+  let lessProperties = [prop_tenElements, prop_firstElementIsInput, prop_sumIsTriangleNumberTimesInput, prop_moduloIsZero]
   survivorsLessProperties <- countSurvivors mutators nMutants lessProperties fut
   putStrLn $ "The number of survivors with less properties: " ++ show survivorsLessProperties
 

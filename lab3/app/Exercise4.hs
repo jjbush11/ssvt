@@ -11,16 +11,23 @@ import Test.QuickCheck
 
 -- Exercise 4
 -- Implement a function that calculates the strength of a given set of properties, which is the percentage of mutants they kill. 
--- It was the idea to retrieve the score from the PropertyAnalysis record, but this gave a: labs: Prelude.head: empty list error. 
+-- It was the idea to retrieve the score from the PropertyAnalysis record, but this gave a: labs: Prelude.head: empty list error, which we couldn't fix.
 -- Therefore it is now implemented as follows:
 calculateStrengthOfProperties :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO Float
 calculateStrengthOfProperties mutators nMutants properties fut = do
-  res <- executeMutation mutators nMutants properties fut
-  let totalMutants = fromIntegral $ length res
+  -- We first execute the executeMutation function to get the raw results
+  mutationResult <- executeMutation mutators nMutants properties fut
 
-  let survivorsCount = fromIntegral $ length $ filter id $ map and res
+  -- To determine the strength of a set of properties, we need to calculate the percentage of mutants they kill.
+  -- We first determine the total number of mutants, by taking the length of the result list.
+  let totalMutants = fromIntegral $ length mutationResult
 
-  return ((totalMutants - survivorsCount) / totalMutants * 100)
+  -- We then determine the number killed mutants, by taking the length of the list of killed mutants.
+  -- A mutant is killed if a list contains at least one False value.
+  let totalKilled = fromIntegral $ length $ filter id $ map (any not) mutationResult
+
+  -- We then calculate the strength by dividing the number of killed mutants by the total number of mutants and multiplying it by 100.
+  return (totalKilled / totalMutants * 100)
 
 main :: IO ()
 main = do

@@ -4,6 +4,8 @@ import Control.Monad
 import Data.List (subsequences, transpose)
 import Exercise1
 import Exercise2
+import Exercise3
+import Exercise5
 import FitSpec (testFitSpec)
 import MultiplicationTable
 import Mutation
@@ -22,14 +24,14 @@ report mutators nMutants properties fut = do
 
   -- We then apply the computeAnalysis function to get a PropertyAnalysis record.
   let transposedResults = transposeRawResults res
-  let raw = map (length . snd) transposedResults
-  let indices = map fst $ transposeRawResults res
   let analysis = computeAnalysis transposedResults
 
   -- Print report based on the calculated analysis
   print $ "The total number of mutants is: " ++ show (totalMutants analysis)
   print $ show (nKilled analysis) ++ " mutants killed in total"
   print $ show (nSurvivors analysis) ++ " survivors (" ++ show (score analysis) ++ "% killed)"
+
+  -- We didn't have time to add conjectures and minimal subsets to the report, but we did implement them in the code.
 
 main :: IO ()
 main = do
