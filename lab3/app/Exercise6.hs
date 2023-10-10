@@ -43,4 +43,4 @@ main = do
   -- Print a report
   report mutators nMutants properties fut
 
--- Indication of time spent: 1 hour
+-- Time Spent: 1 hour

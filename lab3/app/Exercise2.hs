@@ -17,14 +17,13 @@ type MutantId = Int
 -- A record to store the results of the analysis of a subset of properties.
 data PropertyAnalysis = PropertyAnalysis
   { propertyIndices :: Set.Set PropertyId,
-    rawResult :: [Bool],
     totalMutants :: Int,
     nSurvivors :: Int,
     nKilled :: Int,
     score :: Int,  -- The score is nKilled / totalMutants * 100
     mutantsSurvived :: Set.Set MutantId,
     mutantsKilled :: Set.Set MutantId
-  } deriving (Show)
+  } deriving (Show, Eq, Ord)
 
 executeMutation :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO [[Bool]]
 executeMutation mutators nMutants properties fut = do
@@ -44,8 +43,7 @@ executeMutation mutators nMutants properties fut = do
   where
     propertiesIndices = [1 .. (length properties)]
 
--- This function needs to give an index to each boolean, then depending on if the boolean is true (survived) or not (killed)
--- Add this index to the first set or the second. Return a tuple of these sets. 
+-- This function converts a list of results 
 boolToSets :: [Bool] -> (Set.Set MutantId, Set.Set MutantId)
 boolToSets booleans = go booleans 0 Set.empty Set.empty
   where
@@ -62,10 +60,9 @@ transposeRawResults = zip [0..] . transpose
 -- Helper function to compute a PropertyAnalysis record for a given subset of properties.
 computeAnalysis :: [(Int, [Bool])] -> PropertyAnalysis
 computeAnalysis properties =
-    let totalMutantsValue = length . head . map snd $ properties  -- Assumes all lists have the same length
+    let totalMutantsValue = length $ snd $ head properties  -- Assumes all lists have the same length
     in PropertyAnalysis
       { propertyIndices = Set.fromList $ map fst properties,
-        rawResult = map snd properties >>= id,  -- Flatten the list of Bool lists
         totalMutants = totalMutantsValue,
         nSurvivors = Set.size mutantsSurvived,
         nKilled = Set.size mutantsKilled,
@@ -95,63 +92,43 @@ computeAnalysis properties =
 countSurvivors :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO Integer
 countSurvivors mutators nMutants properties fut = do
   -- We first execute the executeMutation function to get the raw results
-  res <- executeMutation mutators nMutants properties fut
-  -- We first apply and to each list of result of the mutate' function, which is a list of Bool.
-  -- If it then is True, it means that all properties are satisfied, and the mutant has survived.
-  -- We then filter out the False values, because we are interested in the number of survivors.
-  -- After that, we count the number of survivors by determining the length of the list.
-  -- return $ fromIntegral $ length $ filter id $ map and res
-
-  -- print res
+  mutationResults <- executeMutation mutators nMutants properties fut
 
   -- We then apply the computeAnalysis function to get a PropertyAnalysis record. 
-  let transposedResults = transposeRawResults res
-  let raw = map (length . snd) transposedResults
-  let indices = map fst $ transposeRawResults res
-
-  print raw
-  print indices
-  -- print if empty lists exist in the raw results
-  print $ elem [] res
-  -- print transposedResults
-  print "This worked..."
+  let transposedResults = transposeRawResults mutationResults
 
   let analysis = computeAnalysis transposedResults
 
-  -- print survivors
-  print $ nSurvivors analysis
-
-  return $ fromIntegral $ length $ filter id $ map and res
-
-
-printIO :: (Show a) => IO a -> IO ()
-printIO = (>>= print)
+  return $ fromIntegral $ nSurvivors analysis
 
 -- Document the effect of which mutations are used and which properties are used on the number of survivors.
-allElementsEqual :: (Eq a) => [a] -> Bool
-allElementsEqual [] = True
-allElementsEqual (x : xs) = all (== x) xs
-
 main :: IO ()
 main = do
-  -- Experimenting with the mutate' function
+  -- Arguments passed to the countSurvivors function
   let fut = multiplicationTable
   let properties = multiplicationTableProps
-  let mutator = negateElements
-  input <- generate arbitrary :: IO Integer
-  results <- generate (mutate' mutator properties fut input)
-  print results -- This will print a list of Bool values
   let nMutants = 4000
   let mutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary, addOneToElements] --, anyList, emptyList]
 
-  -- Experimenting with the executeMutation function
-  res <- executeMutation mutators nMutants properties fut
-
-  -- Experimenting with the countSurvivors function
+  -- Determine the number of survivors
   survivors <- countSurvivors mutators nMutants properties fut
-  print survivors
+  putStrLn $ "The number of survivors is: " ++ show survivors
 
---   printIO $ generate (countSurvivors' mutators nMutants properties fut)
+  -- Based on the properties used, we can see that the number of survivors is 0.
+  -- This means that the combination of all properties is able to kill all mutants. 
+  -- In the context of mutation testing, this means that the set of properties is complete.
 
--- Run fitspec for comparison to our own implementation
--- testFitSpec
+  -- een voorbeeld met minder mutators 
+  -- eentje met minderproperties 
+
+  let lessMutators = [sortList, duplicateElements, singleElementList, negateElements, removeElements, zeroElements, shuffleElements, powElements, multiplyByArbitrary]
+  survivorsLessMutators <- countSurvivors lessMutators nMutants properties fut
+  putStrLn $ "The number of survivors with less mutators: " ++ show survivorsLessMutators
+
+
+  let lessProperties = [prop_tenElements, prop_firstElementIsInput, prop_sumIsTriangleNumberTimesInput, prop_linear, prop_moduloIsZero]
+  survivorsLessProperties <- countSurvivors mutators nMutants lessProperties fut
+  putStrLn $ "The number of survivors with less properties: " ++ show survivorsLessProperties
+
+
+-- Time spent: 8 hours
