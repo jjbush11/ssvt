@@ -10,6 +10,8 @@ import Lecture3 (p)
 import MultiplicationTable
 import Mutation
 import Test.QuickCheck
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 data Implication = Implication
   { antecedent :: [Int],
@@ -55,6 +57,11 @@ calculateWeightOfImplication totalMutants survivorsA survivorsB = (survivorsA - 
 --         minimalSubsets = filter (\props -> impliesAll closure props allProps) propCombinations
 --     in minimalSubsets
 
+-- The main function to compute the list of PropertyAnalysis records.
+computeAnalyses :: [(Int, [Bool])] -> [PropertyAnalysis]
+computeAnalyses rawResult = [computeAnalysis subset | subset <- tail . subsequences $ rawResult]  -- Exclude empty subset
+
+
 -- Exercise 3
 -- Implement a function that calculates the minimal property subsets, given a 'function under test' and a set of properties
 
@@ -88,11 +95,37 @@ calculateMinimalPropertySubsets mutators properties functionUnderTest = do
   let survivorsCount = [(subset, length $ filter id results) | (subset, results) <- subsetSurvivors]
   print $ map snd survivorsCount
 
-  -- Determine implication between subsets of properties
-  let implications = [(subsetA, subsetB) | (subsetA, resultsA) <- subsetSurvivors, (subsetB, resultsB) <- subsetSurvivors, subsetA /= subsetB, resultsA `isSubsetOf` resultsB]
+
+  -- -- Determine implication between subsets of properties
+  -- let implications = [(subsetA, subsetB) | (subsetA, resultsA) <- subsetSurvivors, (subsetB, resultsB) <- subsetSurvivors, subsetA /= subsetB, resultsA `isSubsetOf` resultsB]
+
+  let analyses = computeAnalyses $ transposeRawResults mutationResults
+
+  -- For every propertyAnalysis, retrieve nSurvivors 
+  let propertyAnalysisSurvivors = map nSurvivors analyses
+  print propertyAnalysisSurvivors
+
+  -- Get the analysis for the total set of properties
+  let totalAnalysis = head $ filter (\analysis -> propertyIndices analysis == Set.fromList [0 .. length properties - 1]) analyses
+
+  -- For the totalAnalysis, retrieve the amount of survivors
+  let totalAnalysisSurvivors = nSurvivors totalAnalysis
+
+  -- Print the indices of totalAnalysis 
+  print $ (Set.toList . propertyIndices) totalAnalysis
+
+  -- Filter out the propertyAnalyses that have no survivors
+
+  let survivingAnalyses = filter (\analysis -> nSurvivors analysis == 0) analyses
+
+  -- For every surviving propertyAnalysis, retrieve the propertyIndices
+  let survivingAnalysesPropertyIndices = map (Set.toList . propertyIndices) survivingAnalyses
+  print survivingAnalysesPropertyIndices
+
+  print "Hello World"
 
   -- print implications
-  print propertySubsequences
+  -- print propertySubsequences
   where
     propertyNumbers = [0 .. length properties - 1]
     -- Generate all subsets, excluding the empty set

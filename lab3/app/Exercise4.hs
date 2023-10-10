@@ -18,6 +18,12 @@ calculateStrengthOfProperties mutators nMutants properties fut = do
 
   let survivorsCount = fromIntegral $ length $ filter id $ map and res
 
+  -- -- We then apply the computeAnalysis function to get a PropertyAnalysis record, which contains the score
+  -- let transposedResults = transposeRawResults res
+  -- let analysis = computeAnalysis transposedResults
+
+  -- -- print survivors
+  -- print $ score analysis
   return ((totalMutants - survivorsCount) / totalMutants * 100)
 
 main :: IO ()
