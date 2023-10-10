@@ -14,24 +14,27 @@ import Test.QuickCheck
 -- Exercise 6 (Bonus)
 -- Create a function that we pass the function under test, a set of properties, and a number
 -- indicating the number of mutants, that visualizes the results of the functions from the previous exercises.
-visualizeResults :: [a -> Integer -> Bool] -> (Integer -> a) -> Integer -> String
-visualizeResults = undefined
-
 report :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> IO ()
 report mutators nMutants properties fut = do
   -- We first execute the executeMutation function to get the raw results
-  res <- executeMutation mutators nMutants properties fut
+  mutationResults <- executeMutation mutators nMutants properties fut
 
   -- We then apply the computeAnalysis function to get a PropertyAnalysis record.
-  let transposedResults = transposeRawResults res
+  let transposedResults = transposeRawResults mutationResults
   let analysis = computeAnalysis transposedResults
+  
+  let conjectures = computeConjectures $ computeAnalyses $ transposeRawResults mutationResults
 
   -- Print report based on the calculated analysis
-  print $ "The total number of mutants is: " ++ show (totalMutants analysis)
-  print $ show (nKilled analysis) ++ " mutants killed in total"
-  print $ show (nSurvivors analysis) ++ " survivors (" ++ show (score analysis) ++ "% killed)"
+  putStrLn $ "The total number of mutants is: " ++ show (totalMutants analysis)
+  putStrLn $ show (nKilled analysis) ++ " mutants killed in total"
+  putStrLn $ show (nSurvivors analysis) ++ " survivors (" ++ show (score analysis) ++ "% killed)"
 
-  -- We didn't have time to add conjectures and minimal subsets to the report, but we did implement them in the code.
+  -- Print the conjectures: 
+  putStrLn "The conjectures are: "
+  forM_ conjectures print
+
+  -- We didn't have time to add the minimal subsets to the report, because we then had to change the implementation of Exercise 3.
 
 main :: IO ()
 main = do
@@ -45,4 +48,4 @@ main = do
   -- Print a report
   report mutators nMutants properties fut
 
--- Time Spent: 1 hour
+-- Time Spent: 0.5 hour
