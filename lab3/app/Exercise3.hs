@@ -35,6 +35,35 @@ filterMinimalSubsets subsets = filter isMinimal subsets
 computeAnalyses :: [(Int, [Bool])] -> [PropertyAnalysis]
 computeAnalyses rawResult = [computeAnalysis subset | subset <- tail . subsequences $ rawResult] -- Exclude empty subset
 
+computeMinimalPropertySubsets :: [[Bool]] -> [[PropertyId]]
+computeMinimalPropertySubsets mutationResults =
+  let -- Get the list of propertyAnalysis records,
+      -- where each record contains:
+      -- \* the subset of properties,
+      -- \* the raw results,
+      -- \* the total number of mutants,
+      -- \* the number of survivors,
+      -- \* the number of killed mutants,
+      -- \* the score,
+      -- \* the mutants that survived and the mutants that were killed
+      analyses = computeAnalyses $ transposeRawResults mutationResults
+
+      -- Get the analysis for the total set of properties
+      totalAnalysis = head $ filter (\analysis -> propertyIndices analysis == Set.fromList [0 .. length (head mutationResults) - 1]) analyses
+
+      -- For the totalAnalysis, retrieve the amount of survivors
+      totalAnalysisSurvivors = nSurvivors totalAnalysis
+
+      -- Filter out the propertyAnalyses that have the same amount of survivors as the totalAnalysis
+      -- By doing this, instead of checking if the amount of survivors is equal to zero,
+      -- we take into account the situation where all the properties don't kill all the mutants.
+      survivingAnalyses = filter (\analysis -> nSurvivors analysis == totalAnalysisSurvivors) analyses
+
+      -- For every propertyAnalysis, which have the same amount of survivors as the totalAnalysis, retrieve the indices
+      survivingAnalysesPropertyIndices = map (Set.toList . propertyIndices) survivingAnalyses
+      -- Filter out the propertyAnalyses that are not minimal
+   in filterMinimalSubsets survivingAnalysesPropertyIndices
+
 -- Exercise 3
 -- A function that calculates the minimal property subsets, given a 'function under test' and a set of properties
 
@@ -58,33 +87,8 @@ calculateMinimalPropertySubsets mutators properties functionUnderTest = do
   -- We first execute the executeMutation function to get the raw results
   mutationResults <- executeMutation mutators 4000 properties functionUnderTest
 
-  -- Get the list of propertyAnalysis records,
-  -- where each record contains:
-  -- \* the subset of properties,
-  -- \* the raw results,
-  -- \* the total number of mutants,
-  -- \* the number of survivors,
-  -- \* the number of killed mutants,
-  -- \* the score,
-  -- \* the mutants that survived and the mutants that were killed
-  let analyses = computeAnalyses $ transposeRawResults mutationResults
-
-  -- Get the analysis for the total set of properties
-  let totalAnalysis = head $ filter (\analysis -> propertyIndices analysis == Set.fromList [0 .. length properties - 1]) analyses
-
-  -- For the totalAnalysis, retrieve the amount of survivors
-  let totalAnalysisSurvivors = nSurvivors totalAnalysis
-
-  -- Filter out the propertyAnalyses that have the same amount of survivors as the totalAnalysis
-  -- By doing this, instead of checking if the amount of survivors is equal to zero,
-  -- we take into account the situation where all the properties don't kill all the mutants.
-  let survivingAnalyses = filter (\analysis -> nSurvivors analysis == totalAnalysisSurvivors) analyses
-
-  -- For every propertyAnalysis, which have the same amount of survivors as the totalAnalysis, retrieve the indices
-  let survivingAnalysesPropertyIndices = map (Set.toList . propertyIndices) survivingAnalyses
-
   -- Filter out the propertyAnalyses that are not minimal
-  let minimalPropertySubsets = filterMinimalSubsets survivingAnalysesPropertyIndices
+  let minimalPropertySubsets = computeMinimalPropertySubsets mutationResults
 
   return minimalPropertySubsets
 
