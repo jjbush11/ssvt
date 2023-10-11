@@ -28,10 +28,10 @@ propertyExecutor prop mutant x = return $ prop mutant x
 -- The mutator function is applied to the output of the function under test, and the resulting mutant is tested against each property function in the list.
 -- The function returns a list of Boolean values, where each value represents whether the corresponding mutant was killed (False), whether it lived (True), or whether it did not change the output (empty list).
 mutate' :: (Eq a) => (a -> Gen a) -> [a -> Integer -> Bool] -> (Integer -> a) -> Integer -> Gen [Bool]
-mutate' mutator prop fut input = mutation >>= \mutant -> mutateOrNothing' output mutant (propertyExecutor' prop mutant input)
+mutate' mutator props fut input = mutation >>= \mutant -> mutateOrNothing' output mutant (propertyExecutor' props mutant input)
   where
-    output = fut input
-    mutation = mutator output
+    output = fut input -- e.g. [1,2,3,4,5,6,7,8,9,10]
+    mutation = mutator output -- e.g. [1,2,3,4,5,6,7,8,9,10,11]
 
 propertyExecutor' :: (Eq a) => [a -> Integer -> Bool] -> a -> Integer -> Gen [Bool]
 propertyExecutor' prop mutant x = return $ map (\y -> y mutant x) prop

@@ -16,11 +16,11 @@ import Data.List
 -- 5. Negating elements
 -- 6. Zeroing elements
 
-
 -- Additional Mutators
 -- Sorting mutator: Sorts the list
 -- Strength: It can identify if the property is order dependent
--- Weakness: It may not be applicable in cases where the order of the list is not important
+-- Weakness: It may not be applicable in cases where the order of the list is not important.
+-- Or for a function like multiplicationTable, where the elements are already sorted.
 sortList :: [Integer] -> Gen [Integer]
 sortList xs = return $ sort xs
 
@@ -38,7 +38,6 @@ duplicateElements xs = return $ xs ++ xs
 emptyList :: [Integer] -> Gen [Integer]
 emptyList xs = return []
 
-
 -- Single element list: Returns a list with a single element
 -- Strength: Useful to verify if the function handles single element lists correctly
 -- Weakness: Only specific to single element list scenarios
@@ -53,7 +52,43 @@ singleElementList xs = return [head xs]
 negateElements :: [Integer] -> Gen [Integer]
 negateElements xs = return $ map negate xs
 
+-- Zeroing elements: Sets all elements in the list to zero
+-- Strength: Useful to check if the function handles zero correctly
+-- Weakness: Not very useful for functions that do not handle zero's.
+zeroElements :: [Integer] -> Gen [Integer]
+zeroElements xs = return $ map (const 0) xs
+
+-- Shuffling elements: Shuffles the elements in the list
+-- Strength: Useful to check if the function handles shuffled lists correctly
+-- Weakness: Not very useful for functions that do not handle shuffled lists
+shuffleElements :: [Integer] -> Gen [Integer]
+shuffleElements xs = do
+  shuffle xs
+
+-- Pow elements: Squares all elements in the list
+-- Strength: Useful to see what happens 
+powElements :: [Integer] -> Gen [Integer]
+powElements xs = return $ map (^2) xs
+
+-- The following two mutators were necessary to make the check the fifth property of multiplicationTableProps
+-- The fifth property: Any element modulo the input is zero
+-- Will be tested if the modulo is not zero, this happens in both these mutators. 
+
+-- Multiply by arbitrary: Multiplies all elements in the list by an arbitrary number
+-- Strength: Useful to check the modulo property
+-- Weakness: Not very useful for functions that do not handle multiplication
+multiplyByArbitrary :: [Integer] -> Gen [Integer]
+multiplyByArbitrary xs = do
+  n <- arbitrary
+  return $ map (* n) xs
+
+-- Add one to elements: Adds one to all elements in the list
+-- Strength: Useful to check the modulo property
+-- Weakness: Not very useful for functions that do not handle addition
+addOneToElements :: [Integer] -> Gen [Integer]
+addOneToElements xs = return $ map (+1) xs
+
 
 main :: IO ()
 main = do
-  print "Hello World"
+  putStrLn ""
