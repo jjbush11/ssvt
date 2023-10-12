@@ -36,6 +36,7 @@ executable labs
                     Lecture1,
                     Lecture2,
                     Lecture3,
+                    Lecture6,
                     SetOrd
                     
     -- LANGUAGE extensions used by modules in this package.
