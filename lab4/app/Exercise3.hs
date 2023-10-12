@@ -11,11 +11,11 @@ symClos = reverse . symClos' []
     symClos' acc [] = acc
     symClos' acc ((x,y):xs) = symClos' ((y,x):(x,y):acc) xs
 
-examleRel :: Rel Int
-examleRel = [(1,2),(2,3),(3,4)]
+exampleRel :: Rel Int
+exampleRel = [(1,2),(2,3),(3,4)]
 
 main :: IO ()
 main = do
-  let examleClosure = symClos examleRel
+  let examleClosure = symClos exampleRel
   print examleClosure
   
