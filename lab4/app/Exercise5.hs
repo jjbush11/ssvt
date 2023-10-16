@@ -30,6 +30,5 @@ trClos r
 
 main :: IO ()
 main = do
-  print "Hello World"
   let exampleClosure = trClos exampleRel
   print exampleClosure
