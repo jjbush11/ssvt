@@ -26,7 +26,7 @@ trClos r
     -- We perform a step of the transitive closure.
     -- Add the composed relation r @@ r to the original relation r and remove duplicates using nub.
     -- This means: r' = r U (r @@ r)
-    r' = nub (r ++ (r @@ r))
+    r' = r `union` (r @@ r)
 
 main :: IO ()
 main = do
