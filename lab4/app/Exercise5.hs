@@ -2,8 +2,6 @@ module Exercise5 where
 
 import Data.List
 import Exercise3
-import SetOrd
-import Test.QuickCheck
 
 -- From the Lab 4 exercises:
 -- For each pair (x, y) in the first relation r, and each pair (w, z) in the second relation s,
@@ -16,7 +14,7 @@ r @@ s = nub [(x, z) | (x, y) <- r, (w, z) <- s, y == w]
 
 -- This function computes the transitive closure of a relation.
 -- It does so by making use of the @@ operator defined above.
--- If the relation does not change after one step, it's the transitive closure. 
+-- If the relation does not change after one step, it's the transitive closure.
 -- Otherwise, just continue the process with the updated relation.
 trClos :: (Eq a) => Rel a -> Rel a
 trClos r

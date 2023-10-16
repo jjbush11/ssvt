@@ -1,9 +1,8 @@
 module Exercise7 where
 
-import Test.QuickCheck
-import Exercise2
 import Exercise3
 import Exercise5
+import Test.QuickCheck
 
 -- Yes, there is a difference between the symmetric closure of the transitive closure of a relation R
 -- and the transitive closure of the symmetric closure of R.
@@ -21,7 +20,7 @@ import Exercise5
 -- If we compare the two sets, we can see that they are not equal.
 -- In the latter, the relationship (a, a) and (b, b) are added.
 
--- Below is the code to test this for this simple example. 
+-- Below is the code to test this for this simple example.
 -- {(1,2)} is used instead of {(a, b)} for simplicity.
 
 simpleRel :: [(Int, Int)]
@@ -38,7 +37,6 @@ transSymClosure xs = trClos (symClos xs)
 prop_symTransClosure :: [(Int, Int)] -> Bool
 prop_symTransClosure xs = symTransClosure xs /= transSymClosure xs
 
-
 main :: IO ()
 main = do
   -- The result of the following is as expected: [(1, 2), (2, 1)]
@@ -48,7 +46,7 @@ main = do
   putStrLn "The transitive closure of the symmetric closure of our simple relation:"
   putStrLn $ show (transSymClosure simpleRel) ++ "\n"
   -- We test the property for our simple relation
-  -- As we expected, the property holds. Which means the two sets aren't equal. 
+  -- As we expected, the property holds. Which means the two sets aren't equal.
   putStr "The property holds for our simple relation: "
   print $ prop_symTransClosure simpleRel
 

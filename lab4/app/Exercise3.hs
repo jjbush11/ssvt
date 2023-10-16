@@ -2,7 +2,6 @@ module Exercise3 where
 
 import Data.List
 import SetOrd
-import Test.QuickCheck
 
 type Rel a = [(a, a)]
 
