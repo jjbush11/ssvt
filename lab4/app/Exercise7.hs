@@ -54,5 +54,6 @@ main = do
 
   -- We also test this property with QuickCheck
   -- The result passes all tests for lists of relations that are not empty
+  -- TO-DO: Fix it for relations like [(1,1)]
   putStrLn "The property holds for random generated relations:"
   quickCheck $ forAll (arbitrary `suchThat` (not . null)) (\xs -> prop_symTransClosure (xs :: [(Int, Int)]))
