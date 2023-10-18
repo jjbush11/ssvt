@@ -28,5 +28,9 @@ trClos r
 
 main :: IO ()
 main = do
-  let exampleClosure = trClos exampleRel
-  print exampleClosure
+  -- The result of the following closure is as expected, namely:
+  -- [(1,2),(2,3),(3,4),(1,3),(2,4),(1,4)]
+  putStrLn "The transitive closure of the example relation is:"
+  print $ trClos exampleRel
+
+-- Time spent: 30 minutes

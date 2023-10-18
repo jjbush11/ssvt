@@ -2,6 +2,7 @@ module Exercise7 where
 
 import Exercise3
 import Exercise5
+import Exercise6 (isSymmetric, isTransitive)
 import Test.QuickCheck
 
 -- Yes, there is a difference between the symmetric closure of the transitive closure of a relation R
@@ -26,16 +27,22 @@ import Test.QuickCheck
 simpleRel :: [(Int, Int)]
 simpleRel = [(1, 2)]
 
-symTransClosure :: [(Int, Int)] -> [(Int, Int)]
+symTransClosure :: (Ord a) => [(a, a)] -> [(a, a)]
 symTransClosure xs = symClos (trClos xs)
 
-transSymClosure :: [(Int, Int)] -> [(Int, Int)]
+transSymClosure :: (Ord a) => [(a, a)] -> [(a, a)]
 transSymClosure xs = trClos (symClos xs)
 
--- We expect the two sets to be unequal
--- If they are equal, the test fails (and thus the property is false)
-prop_symTransClosure :: [(Int, Int)] -> Bool
-prop_symTransClosure xs = symTransClosure xs /= transSymClosure xs
+-- We expected the two sets to be unequal, as in the example above.
+-- However, in the case of the empty set, the following property doesn't hold.
+-- It also doesn't hold for the sets [(1, 1)] and [(1,3),(3,1),(0,0)].
+-- So, we came to the conclusion that the symTransClosure and transSymClosure
+-- can be equal if and only if the original set:
+-- 1. is empty
+-- 2. contains already symmetrical pairs
+-- 3. doesn't have any transitive pairs to add
+prop_symTransUnequal :: (Ord a) => [(a, a)] -> Bool
+prop_symTransUnequal xs = symTransClosure xs /= transSymClosure xs
 
 main :: IO ()
 main = do
@@ -48,10 +55,14 @@ main = do
   -- We test the property for our simple relation
   -- As we expected, the property holds. Which means the two sets aren't equal.
   putStr "The property holds for our simple relation: "
-  print $ prop_symTransClosure simpleRel
+  print $ prop_symTransUnequal simpleRel
 
   -- We also test this property with QuickCheck
-  -- The result passes all tests for lists of relations that are not empty
-  -- TO-DO: Fix it for relations like [(1,1)]
-  putStrLn "The property holds for random generated relations:"
-  quickCheck $ forAll (arbitrary `suchThat` (not . null)) (\xs -> prop_symTransClosure (xs :: [(Int, Int)]))
+  -- The result passes all tests if they already are symmetrical and transitive
+  -- or if they are already symmetrical and no transitive pairs can be added.
+  -- So sometimes 100 tests pass, but sometimes they don't.
+  -- We skip the empty list, otherwise it would always fail.
+  putStrLn "The property doesn't hold for all random generated relations:"
+  quickCheck $ expectFailure $ forAll (arbitrary `suchThat` (not . null)) (\xs -> prop_symTransUnequal (xs :: [(Int, Int)]))
+
+-- Time Spent: 45 minutes

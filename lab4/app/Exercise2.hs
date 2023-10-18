@@ -1,6 +1,7 @@
 module Exercise2 where
 
 import Data.List
+import Exercise1
 import SetOrd
 import Test.QuickCheck
 
@@ -38,6 +39,49 @@ setDifference (Set a) (Set b) = Set $ difference (sort a) (sort b)
       | x < y = x : difference xs (y : ys)
       | otherwise = difference (x : xs) ys
 
+-- A property which checks if the intersection of two sets contains
+-- only the elements that are in both sets.
+prop_intersectionContainsOnly :: (Ord a) => Set a -> Set a -> Bool
+prop_intersectionContainsOnly (Set a) (Set b) = case setIntersection (Set a) (Set b) of
+  Set intersection -> all (`elem` a) intersection && all (`elem` b) intersection
+
+-- A property which checks if the union of two sets contains all the elements of both sets.
+prop_unionContainsAll :: (Ord a) => Set a -> Set a -> Bool
+prop_unionContainsAll (Set a) (Set b) = case setUnion (Set a) (Set b) of
+  Set union -> all (`elem` union) a && all (`elem` union) b
+
+-- A property which checks if the difference of two sets contains
+-- only the elements that are in the first set, but not in the second.
+prop_differenceContainsOnly :: (Ord a) => Set a -> Set a -> Bool
+prop_differenceContainsOnly (Set a) (Set b) = case setDifference (Set a) (Set b) of
+  Set difference -> all (`elem` a) difference && all (`notElem` b) difference
+
 main :: IO ()
 main = do
-  print "Hello World"
+  -- All the examples below return the expected answers.
+
+  -- The union of [1, 2, 3] and [2, 3, 4] should be [1, 2, 3, 4]
+  putStrLn "The union of [1, 2, 3] and [2, 3, 4] should be [1, 2, 3, 4]:"
+  putStrLn $ show (setUnion (Set [1, 2, 3]) (Set [2, 3, 4])) ++ "\n"
+
+  -- The intersection of [1, 2, 3] and [2, 3, 4] should be [2, 3]
+  putStrLn "The intersection of [1, 2, 3] and [2, 3, 4] should be [2, 3]:"
+  putStrLn $ show (setIntersection (Set [1, 2, 3]) (Set [2, 3, 4])) ++ "\n"
+
+  -- The difference of [1, 2, 3] and [2, 3, 4] should be [1]
+  putStrLn "The difference of [1, 2, 3] and [2, 3, 4] should be [1]:"
+  putStrLn $ show (setDifference (Set [1, 2, 3]) (Set [2, 3, 4])) ++ "\n"
+
+  -- Tests with QuickCheck
+  putStrLn "Testing the intersection property with QuickCheck:"
+  quickCheck (prop_intersectionContainsOnly :: Set Int -> Set Int -> Bool)
+
+  putStrLn "Testing the union property with QuickCheck:"
+  quickCheck (prop_unionContainsAll :: Set Int -> Set Int -> Bool)
+
+  putStrLn "Testing the difference property with QuickCheck:"
+  quickCheck (prop_differenceContainsOnly :: Set Int -> Set Int -> Bool)
+
+-- All tests passed for all properties, thus we can be quite sure that our functions work as expected.
+
+-- Time spent: 45 minutes

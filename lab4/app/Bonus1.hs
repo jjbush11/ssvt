@@ -54,5 +54,8 @@ instance Show Statement where
 
 main :: IO ()
 main = do
+  -- The latter prints the two example statements from the Lecture6.hs
   print fib
   print fib'
+
+-- Time Spent: 30 minutes

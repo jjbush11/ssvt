@@ -34,3 +34,5 @@ main = do
   putStrLn "Random set from Arbitrary typeclass:"
   randomSet2 <- generate (arbitrary :: Gen (Set Int))
   print randomSet2
+
+-- Time Spent: 20 minutes

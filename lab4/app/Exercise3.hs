@@ -33,5 +33,7 @@ main = do
   -- However, the latter will probably be more efficient at determining the symmetric closure.
   -- This is because there is no need to sort the list and remove duplicates.
   putStrLn "The symmetric closure of the example relation, for both functions:"
-  print $ symClos exampleRel
-  print $ symClos' exampleRel
+  putStrLn $ "symClos:" ++ show (symClos exampleRel)
+  putStrLn $ "symClos':" ++ show (symClos' exampleRel)
+
+-- Time Spent: 60 minutes (15 just for fun)
