@@ -4,6 +4,8 @@ import Exercise3
 import Test.QuickCheck
 import Data.List
 
+-- The isSerial function checks whether a relation is serial or not.
+-- A relation R on a set A is called serial if for every element x in A, there is an element y in A such that xRy.
 isSerial :: (Eq a) => [a] -> Rel a -> Bool
 isSerial domain rel = all (hasRelation domain rel) domain
   where
@@ -60,8 +62,12 @@ main = do
   print $ take 10 modularRelation
   print $ take 30 $ modularRelationForN 2
 
+  -- isSerial always returns true for the modularRelationsForN where n . 0 and n <= 5.
+  -- So we could conclude that the R = {(x, y) | x = y(mod n)} relations holds for all n <= 5.
   print $ isSerial [0 .. 10] (modularRelationForN 1)
   print $ isSerial [0 .. 10] (modularRelationForN 2)
   print $ isSerial [0 .. 10] (modularRelationForN 3)
   print $ isSerial [0 .. 10] (modularRelationForN 4)
   print $ isSerial [0 .. 10] (modularRelationForN 5)
+
+  -- Indication of time spent: 150 minutes
