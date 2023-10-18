@@ -10,21 +10,25 @@ isSerial domain rel = all (hasRelation domain rel) domain
     hasRelation :: (Eq a) => [a] -> Rel a -> a -> Bool
     hasRelation domain rel x = any (\y -> (x, y) `elem` rel) domain
 
+-- This property tests wether isSerial always returns true for identity relations.
 prop_isSerial_returns_true_for_identity_relation :: NonEmptyList Int -> Property
 prop_isSerial_returns_true_for_identity_relation (NonEmpty domain) =
   let rel = [(x, x) | x <- domain]
   in isSerial domain rel === True
 
+-- This property tests wether isSerial always returns false for empty relations.
 prop_isSerial_returns_false_for_empty_relation :: NonEmptyList Int -> Property
 prop_isSerial_returns_false_for_empty_relation (NonEmpty domain) =
   let rel = []
   in isSerial domain rel === False
 
+-- This property tests wether isSerial always returns false for incomplete relations.
 prop_isSerial_returns_false_for_incomplete_relation :: NonEmptyList Int -> Property
 prop_isSerial_returns_false_for_incomplete_relation (NonEmpty domain) =
   let rel = [(x, y) | x <- domain, y <- domain, x < y]
   in isSerial domain rel === False
 
+-- This property tests wether isSerial always returns false for asymmetric relations.
 prop_isSerial_returns_false_for_asymmetric_relation :: NonEmptyList Int -> Property
 prop_isSerial_returns_false_for_asymmetric_relation (NonEmpty domain) =
   let rel = [(x, y) | x <- domain, y <- domain, x < y]
