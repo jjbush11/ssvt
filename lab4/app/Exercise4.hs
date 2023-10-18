@@ -19,7 +19,7 @@ modularRelation = [(x, y) | x <- [0 ..], y <- [0 ..], n <- [1 ..], x == y `mod` 
 -- For every element x, there is a relation (x,x) in the relation. Thus the relation is serial.
 
 modularRelationForN :: Int -> Rel Int
-modularRelationForN n = [(x, y) | x <- [0 ..], y <- [0 ..], x `mod` n == y `mod` n]
+modularRelationForN n = [(x, y) | x <- [0 .. 10], y <- [0 .. 10], x `mod` n == y `mod` n]
 
 -- With these properties in place, you can use QuickCheck to generate a multitude of test cases and check whether the property holds true for all of them.
 -- If QuickCheck doesn't find any counterexamples, it increases our confidence that the property is true (though it doesn't constitute a formal proof).
@@ -28,3 +28,9 @@ main :: IO ()
 main = do
   print $ take 10 modularRelation
   print $ take 30 $ modularRelationForN 2
+
+  print $ isSerial [0 .. 10] (modularRelationForN 1)
+  print $ isSerial [0 .. 10] (modularRelationForN 2)
+  print $ isSerial [0 .. 10] (modularRelationForN 3)
+  print $ isSerial [0 .. 10] (modularRelationForN 4)
+  print $ isSerial [0 .. 10] (modularRelationForN 5)
