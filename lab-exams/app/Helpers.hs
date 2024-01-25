@@ -130,9 +130,9 @@ isAsymmetricTransitive :: Ord a => Rel a -> Bool
 isAsymmetricTransitive r = isAsymmetric r && isTransitive r
 
 -- Example prop for QuickCheck to be combined with compareRelationProperties
--- quickCheck $ forAll (nonEmptyListOf arbitrary) prop_incomparable
--- prop_incomparable :: [Int] -> Property
--- prop_incomparable domain = not (null domain) ==> compareRelationProperties domain isCoreflexiveTransitive isAsymmetricTransitive == "incomparable"
+-- quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 10)) prop_incomparable
+-- prop_incomparable :: [Int] -> Bool
+-- prop_incomparable domain = compareRelationProperties domain isCoreflexiveTransitive isAsymmetricTransitive == "incomparable"
 
 -- == Problem 4 ==
 -- Get all states of the IOLTS that could have quiescence,
