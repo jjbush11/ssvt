@@ -26,11 +26,25 @@ executable labs
 
     -- Modules included in this executable, other than Main.
     other-modules:  Exam01022023,
+                    Exam11022022,
+                    Exam25102023Max1,
+                    Exam25102023Max2,
                     Lecture1,
                     Lecture2,
                     Lecture3,
+                    Lecture6,
+                    LTS,
+                    MultiplicationTable,
+                    Mutation,
                     SetOrd,
-                    FitSpec
+                    FitSpec,
+                    Helpers,
+                    Exercise1,
+                    Exercise2,
+                    Exercise3,
+                    Exercise4,
+                    Exam25102023Olaf
+                    Exam27102021
                     
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
