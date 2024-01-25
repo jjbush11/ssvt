@@ -16,5 +16,4 @@ main :: IO ()
 main = do
     -- Exam25102023Max1.main
     Exam25102023Max2.main  
-    -- Exam25102023Olaf.main
     -- Exam27102021.main

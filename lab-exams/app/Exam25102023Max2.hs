@@ -66,7 +66,7 @@ order = ([0..5],
         ], 0)
 
 orderAfter1 :: [State]
-orderAfter1 = after (ltsToIolts order) ["?delta"]
+orderAfter1 = after (ltsToIolts order) ["delta"]
 
 orderAfter2 :: [State]
 orderAfter2 = after (ltsToIolts order) ["?btn", "!receipt", "delta"]
