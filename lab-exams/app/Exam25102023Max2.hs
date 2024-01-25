@@ -128,9 +128,6 @@ main =
     -- Test if prop_coreflexiveStronger holds for a list of integers
     quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 5)) prop_coreflexiveStronger
 
-    -- Olaf his example, which is way slower compared to the above example
-    quickCheck $ forAll (arbitrary `suchThat` (\n -> n > 2 && n < 5)) prop_notComparable
-
     -- Problem 4 
     -- Test the superWater function using the dispenserModel
     print "The following two values should hold True"

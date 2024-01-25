@@ -98,16 +98,6 @@ isEquivalence r domain = isReflexive r && isSymmetric r && isTransitive r
 minimalEquivalence :: (Ord a) => Rel a -> [a] -> Rel a
 minimalEquivalence r domain = trClos $ symClos $ refClos r domain
 
--- To test: quickCheck $ forAll (arbitrary `suchThat` (> 0)) prop_notComparable
--- From exam question Olaf
-prop_notComparable :: Int -> Bool
-prop_notComparable n = not (subset lhs rhs) && not (subset rhs lhs)
-  where
-    a = [1 .. n]
-    rels = subsets $ allRels a
-    lhs = filter (\r -> isCoreflexive r && isTransitive r) rels
-    rhs = filter (\r -> isAsymmetric r && isTransitive r) rels
-
 -- Takes a domain and two properties of relations on that domain.
 compareRelationProperties :: (Ord a) => [a] -> (Rel a -> Bool) -> (Rel a -> Bool) -> String
 compareRelationProperties domain prop1 prop2 =
