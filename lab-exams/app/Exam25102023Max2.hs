@@ -125,6 +125,9 @@ main =
     -- The size is limited to 5 because the number of relations grows exponentially with the size of the list
     quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 10)) prop_incomparable
 
+    -- Test if prop_coreflexiveStronger holds for a list of integers
+    quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 5)) prop_coreflexiveStronger
+
     -- Olaf his example, which is way slower compared to the above example
     quickCheck $ forAll (arbitrary `suchThat` (\n -> n > 2 && n < 5)) prop_notComparable
 
