@@ -230,3 +230,19 @@ hasUnreachableStates (states, _, transitions, start) =
 --                 visited' = current : visited
 --                 queue' = queue ++ newStates
 --             in bfs queue' visited' transitions
+
+-- Checks if a set of states refuses all the given labels.
+-- The `refuses` function determines if a set of states within an LTS (Labeled Transition System)
+-- collectively refuse a given set of labels. A state refuses a label if it has no outgoing
+-- transition for that label. If all the states refuse all the given labels, the function returns True.
+-- Otherwise, it returns False.
+--
+-- @param (_, _, transitions, _) The full LTS, with transitions being the list of transitions.
+-- @param states The list of states being checked for refusals.
+-- @param labels The list of labels being checked for refusals.
+-- @return A Boolean indicating whether the set of states refuses all the labels.
+refuses :: LTS -> [State] -> [Label] -> Bool
+refuses (_, _, transitions, _) states labels =
+  all (\s -> all (\l -> not (elem (s, l) possibleTransitions)) labels) states
+  where
+    possibleTransitions = [(from, l) | (from, l, _) <- transitions]
