@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               lab4
+name:               lab
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -25,19 +25,26 @@ executable labs
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:  Exercise1,
-                    Exercise2,
-                    Exercise3,
-                    Exercise4,
-                    Exercise5,
-                    Exercise6,
-                    Exercise7,
-                    Bonus1,
+    other-modules:  Exam01022023,
+                    Exam11022022,
+                    Exam25102023Max1,
+                    Exam25102023Max2,
                     Lecture1,
                     Lecture2,
                     Lecture3,
                     Lecture6,
-                    SetOrd
+                    LTS,
+                    MultiplicationTable,
+                    Mutation,
+                    SetOrd,
+                    FitSpec,
+                    Helpers,
+                    Exercise1,
+                    Exercise2,
+                    Exercise3,
+                    Exercise4,
+                    Exam25102023Olaf
+                    Exam25012024Max
                     
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -45,5 +52,6 @@ executable labs
                       , QuickCheck ^>=2.14.2
                       , random ^>=1.2.1
                       , containers ^>= 0.6.7
+                      , fitspec ^>= 0.4.1.0
     hs-source-dirs:   app
     default-language: Haskell2010
