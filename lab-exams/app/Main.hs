@@ -4,7 +4,7 @@ import Exam01022023
 import Exam25102023Max1
 import Exam25102023Max2
 import Exam25102023Olaf
-import Exam27102021
+import Exam25012024Max
 
 lab :: Int
 lab = 0
@@ -15,5 +15,6 @@ printTesting exercise = putStrLn $ "\n** Performing tests for Lab " ++ show lab 
 main :: IO ()
 main = do
     -- Exam25102023Max1.main
-    Exam25102023Max2.main  
+    -- Exam25102023Max2.main  
+    Exam25012024Max.main
     -- Exam27102021.main

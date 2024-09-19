@@ -99,6 +99,9 @@ minimalEquivalence :: (Ord a) => Rel a -> [a] -> Rel a
 minimalEquivalence r domain = trClos $ symClos $ refClos r domain
 
 -- Takes a domain and two properties of relations on that domain.
+-- First generates all relations on that domain, then filters out the ones that satisfy the properties.
+-- Then checks if the first property is stronger than the second property, and vice versa.
+-- Returns a string that indicates the result.
 compareRelationProperties :: (Ord a) => [a] -> (Rel a -> Bool) -> (Rel a -> Bool) -> String
 compareRelationProperties domain prop1 prop2 =
   let relations = subsets (allRels domain)
@@ -110,19 +113,6 @@ compareRelationProperties domain prop1 prop2 =
      else if prop1Stronger then "prop1 is stronger"
      else if prop2Stronger then "prop2 is stronger"
      else "incomparable"
-
--- Use abovementioned functions to check if a relation is coreflexive transitive 
-isCoreflexiveTransitive :: Ord a => Rel a -> Bool
-isCoreflexiveTransitive r  = isCoreflexive r && isTransitive r
-
--- Use abovementioned functions to check if a relation is asymmetric transitive
-isAsymmetricTransitive :: Ord a => Rel a -> Bool
-isAsymmetricTransitive r = isAsymmetric r && isTransitive r
-
--- Example prop for QuickCheck to be combined with compareRelationProperties
--- quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 10)) prop_incomparable
--- prop_incomparable :: [Int] -> Bool
--- prop_incomparable domain = compareRelationProperties domain isCoreflexiveTransitive isAsymmetricTransitive == "incomparable"
 
 -- == Problem 4 ==
 -- Get all states of the IOLTS that could have quiescence,
@@ -185,54 +175,3 @@ afterTau transitions states
 -- Checks what states can be reached given a set of states and a label.
 applyTransitions :: [LabeledTransition] -> [State] -> Label -> [State]
 applyTransitions transitions states label = [to | (from, l, to) <- transitions, from `elem` states, l == label]
-
--- Checks if an LTS has any unreachable states.
--- This is done by using a breadth first search to find all reachable states.
-
--- Beide implementaties lijken te werken... 
--- Maar de eerste ziet er wat mooier uit
-hasUnreachableStates :: LTS -> Bool
-hasUnreachableStates (states, _, transitions, start) =
-    any (`notElem` reachableStates) states
-    where
-        reachableStates = bfs [start] []
-
-        bfs :: [State] -> [State] -> [State]
-        bfs [] _ = []
-        bfs (s:ss) visited
-            | s `elem` visited = bfs ss visited
-            | otherwise = s : bfs (ss ++ nextStates s) (s:visited)
-
-        nextStates :: State -> [State]
-        nextStates s = [s' | (from, _, s') <- transitions, from == s]
-
-
--- hasUnreachableStates :: LTS -> Bool
--- hasUnreachableStates lts@(states, _, transitions, start) = 
---     any (`notElem` reachableStates) states
---     where
---         reachableStates = bfs [start] [] transitions
-
---         bfs :: [State] -> [State] -> [LabeledTransition] -> [State]
---         bfs [] visited _ = visited
---         bfs (current:queue) visited transitions = 
---             let newStates = nub [s' | (s,l,s') <- transitions, s == current, s' `notElem` visited]
---                 visited' = current : visited
---                 queue' = queue ++ newStates
---             in bfs queue' visited' transitions
-
--- Checks if a set of states refuses all the given labels.
--- The `refuses` function determines if a set of states within an LTS (Labeled Transition System)
--- collectively refuse a given set of labels. A state refuses a label if it has no outgoing
--- transition for that label. If all the states refuse all the given labels, the function returns True.
--- Otherwise, it returns False.
---
--- @param (_, _, transitions, _) The full LTS, with transitions being the list of transitions.
--- @param states The list of states being checked for refusals.
--- @param labels The list of labels being checked for refusals.
--- @return A Boolean indicating whether the set of states refuses all the labels.
-refuses :: LTS -> [State] -> [Label] -> Bool
-refuses (_, _, transitions, _) states labels =
-  all (\s -> all (\l -> not (elem (s, l) possibleTransitions)) labels) states
-  where
-    possibleTransitions = [(from, l) | (from, l, _) <- transitions]

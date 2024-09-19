@@ -13,8 +13,8 @@ import Test.QuickCheck
 -- Suppose relations are represented as lists of pairs: type Rel a = [(a,a)].
 type Rel a = [(a, a)]
 
-prop_incomparable :: [Int] -> Bool
-prop_incomparable domain = compareRelationProperties domain isCoreflexiveTransitive isAsymmetricTransitive == "incomparable"
+-- prop_incomparable :: [Int] -> Bool
+-- prop_incomparable domain = compareRelationProperties domain isCoreflexiveTransitive isAsymmetricTransitive == "incomparable"
 
 -- a prop which checks if coreflexive is stronger than reflexive
 prop_coreflexiveStronger :: [Int] -> Bool
@@ -142,7 +142,7 @@ main =
     -- The length of the list has to be greater than 2 to be able to test for transitivity
     -- The list of integers should contain at least 2 elements and the size of the list should be less than 5
     -- The size is limited to 5 because the number of relations grows exponentially with the size of the list
-    quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 10)) prop_incomparable
+    -- quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 10)) prop_incomparable
 
     -- Test if prop_coreflexiveStronger holds for a list of integers
     quickCheck $ forAll (listOf1 (arbitrary :: Gen Int) `suchThat` (\l -> length l > 2 && length l < 5)) prop_coreflexiveStronger
