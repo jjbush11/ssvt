@@ -20,7 +20,8 @@ prop_coreflexive_and_transitive r =
 prop_asymmetric_and_transitive :: [(Int, Int)] -> Property
 prop_asymmetric_and_transitive r =
   isAsymmetric r && isTransitive r ==> isCoreflexive r && isTransitive r
-  
+
+
 main :: IO ()
 main = do
   quickCheck prop_coreflexive_and_transitive
